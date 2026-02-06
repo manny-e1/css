@@ -1,20 +1,29 @@
-import type { Metadata } from 'next';
-import '@/styles/index.css';
+import type { Metadata } from "next";
+import "@/styles/index.css";
+import { Inter } from "next/font/google";
+import Header from "@/components/header";
+import { ShortlistProvider } from "@/context/shortlist-context";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Carbon Smart Spaces - Sustainable Construction Materials',
-  description: 'Carbon Smart Spaces by KINE MODU helps construction professionals discover verified local materials with price and carbon clarity.',
+  title: "Carbon Smart Spaces",
+  description: "Procurement intelligence for lower carbon building materials",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <ShortlistProvider>
+          <Header />
+          <main className="min-h-screen">{children}</main>
+        </ShortlistProvider>
+      </body>
     </html>
   );
 }
-

@@ -1,21 +1,24 @@
-import { Leaf, Users, Zap } from 'lucide-react';
-import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
+import { Leaf, Users, Zap } from "lucide-react";
+import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 const impacts = [
   {
     icon: Leaf,
-    title: 'Lower-carbon buildings',
-    description: 'Material carbon data becomes visible early, when decisions matter most.',
+    title: "Lower-carbon buildings",
+    description:
+      "Material carbon data becomes visible early, when decisions matter most.",
   },
   {
     icon: Users,
-    title: 'Stronger local supply chains',
-    description: 'Local manufacturers gain visibility and access to professional buyers.',
+    title: "Stronger local supply chains",
+    description:
+      "Local manufacturers gain visibility and access to professional buyers.",
   },
   {
     icon: Zap,
-    title: 'Faster, clearer sourcing',
-    description: 'Better information reduces delays, waste, and reliance on imports.',
+    title: "Faster, clearer sourcing",
+    description:
+      "Better information reduces delays, waste, and reliance on imports.",
   },
 ];
 
@@ -36,20 +39,19 @@ export function Impact() {
           Impact
         </h2>
         <p className="text-center text-gray-600 mb-16 max-w-2xl mx-auto">
-          Building a more sustainable and transparent construction industry in East Africa
+          Building a more sustainable and transparent construction industry in
+          East Africa
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {impacts.map((impact, index) => {
+          {impacts.map((impact) => {
             const Icon = impact.icon;
             return (
-              <div key={index} className="group">
+              <div key={impact.title} className="group">
                 <div className="mb-4 inline-flex p-3 bg-emerald-50 rounded-xl group-hover:bg-emerald-100 transition-colors duration-300">
                   <Icon className="w-8 h-8 text-emerald-600" />
                 </div>
-                <h3 className="text-xl mb-3 text-gray-900">
-                  {impact.title}
-                </h3>
+                <h3 className="text-xl mb-3 text-gray-900">{impact.title}</h3>
                 <p className="text-gray-600 leading-relaxed">
                   {impact.description}
                 </p>

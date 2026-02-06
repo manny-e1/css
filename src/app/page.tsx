@@ -1,13 +1,13 @@
-import { MinimalHeader } from '@/app/components/MinimalHeader';
-import { HeroSection } from '@/app/components/HeroSection';
-import { WhatItIs } from '@/app/components/WhatItIs';
-import { HowItWorksSection } from '@/app/components/HowItWorksSection';
-import { Impact } from '@/app/components/Impact';
-import { WhoItsFor } from '@/app/components/WhoItsFor';
-import { SupplierSignup } from '@/app/components/SupplierSignup';
-import { Partnerships } from '@/app/components/Partnerships';
-import { StatusStrip } from '@/app/components/StatusStrip';
-import { MinimalFooter } from '@/app/components/MinimalFooter';
+import { MinimalHeader } from '@/components/MinimalHeader';
+import { HeroSection } from '@/components/HeroSection';
+import { WhatItIs } from '@/components/WhatItIs';
+import { HowItWorksSection } from '@/components/HowItWorksSection';
+import { Impact } from '@/components/Impact';
+import { WhoItsFor } from '@/components/WhoItsFor';
+import { SupplierSignup } from '@/components/SupplierSignup';
+import { Partnerships } from '@/components/Partnerships';
+import { StatusStrip } from '@/components/StatusStrip';
+import { MinimalFooter } from '@/components/MinimalFooter';
 
 export default function HomePage() {
   return (
