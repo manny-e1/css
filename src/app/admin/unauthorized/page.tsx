@@ -29,7 +29,7 @@ export default function AdminUnauthorizedPage() {
                 Go Home
               </Button>
             </Link>
-            <Link href="/auth/login" className="flex-1">
+            <Link href="/auth/sign-in" className="flex-1">
               <Button className="w-full">Login as Admin</Button>
             </Link>
           </div>

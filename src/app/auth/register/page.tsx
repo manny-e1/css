@@ -19,7 +19,7 @@ export default function Register() {
     });
 
     if (response.ok) {
-      router.push("/auth/login");
+      router.push("/auth/sign-in");
     } else {
       console.error("Registration failed");
     }

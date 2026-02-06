@@ -17,7 +17,7 @@ export function createRoleMiddleware(config: ProtectedRouteConfig = {}) {
       });
 
       if (!session?.user) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+        return NextResponse.redirect(new URL("/auth/sign-in", request.url));
       }
 
       const userRole = session.user.role as Role;
@@ -45,7 +45,7 @@ export function createRoleMiddleware(config: ProtectedRouteConfig = {}) {
       return NextResponse.next();
     } catch (error) {
       console.error("Role middleware error:", error);
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
   };
 }

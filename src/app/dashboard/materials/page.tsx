@@ -8,7 +8,7 @@ export default async function MaterialsPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session) redirect("/auth/login");
+  if (!session) redirect("/auth/sign-in");
 
   const materialList = await db.query.materials.findMany({
     where: (materials, { eq }) => eq(materials.approved, true),

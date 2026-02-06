@@ -18,7 +18,7 @@ export async function roleMiddleware(
     const sessionCookie = request.cookies.get("better-auth.session_token");
 
     if (!sessionCookie) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
 
     // For better security, we'll do a lightweight session validation
@@ -33,13 +33,13 @@ export async function roleMiddleware(
     );
 
     if (!sessionResponse.ok) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
 
     const session = await sessionResponse.json();
 
     if (!session?.user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
 
     const userRole = session.user.role as Role;
@@ -67,7 +67,7 @@ export async function roleMiddleware(
     return NextResponse.next();
   } catch (error) {
     console.error("Role middleware error:", error);
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }
 }
 
