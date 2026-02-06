@@ -29,7 +29,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { db } from "@/db/client";
-import { bids, materials, projects, sourcingRequests, users } from "@/db/new-schema";
+import {
+  bids,
+  materials,
+  projects,
+  sourcingRequests,
+  users,
+} from "@/db/new-schema";
 import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { submitBidAction } from "../actions";
@@ -57,18 +63,20 @@ export default async function SourcingDetail({
 
   // Get user's materials to allow bidding with an existing material (only for suppliers)
   const userMaterials = session?.user.id
-    ? await db
-      .select()
-      .from(materials)
-      .where(eq(materials.approved, true))
+    ? await db.select().from(materials).where(eq(materials.approved, true))
     : [];
 
   // Get existing bid if any for the current user
   const [existingBid] = session?.user.id
     ? await db
-      .select()
-      .from(bids)
-      .where(and(eq(bids.requestId, requestId), eq(bids.supplierId, session.user.id)))
+        .select()
+        .from(bids)
+        .where(
+          and(
+            eq(bids.requestId, requestId),
+            eq(bids.supplierId, session.user.id),
+          ),
+        )
     : [null];
 
   // Get all bids for this request
@@ -106,14 +114,14 @@ export default async function SourcingDetail({
       quoteUrl,
       notes,
     });
-    redirect("/sourcing?success=true");
+    redirect("/bids?success=true");
   }
 
   return (
     <div className="container mx-auto py-12 px-6 lg:px-10">
       <div className="mb-12 space-y-6">
         <Link
-          href="/sourcing"
+          href="/bids"
           className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -127,15 +135,16 @@ export default async function SourcingDetail({
               Sourcing Module
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-              {request.category}{" "}
-              <span className="text-primary">Request</span>
+              {request.category} <span className="text-primary">Request</span>
             </h1>
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Badge
                 variant="outline"
                 className="bg-muted text-primary border-primary px-4 py-2 text-[10px] font-bold uppercase tracking-wider gap-2.5 rounded-xl"
               >
-                {request.requestType === "service" ? "Service Work" : "Material Supply"}
+                {request.requestType === "service"
+                  ? "Service Work"
+                  : "Material Supply"}
               </Badge>
               {project ? (
                 <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-muted border border-border">
@@ -236,7 +245,8 @@ export default async function SourcingDetail({
                 </Label>
                 <div className="p-8 rounded-xl bg-muted border border-border text-base leading-relaxed text-foreground font-medium relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-                  {request.description || "No specific technical requirements provided."}
+                  {request.description ||
+                    "No specific technical requirements provided."}
                 </div>
               </div>
 
@@ -263,7 +273,9 @@ export default async function SourcingDetail({
             <CardContent className="p-8">
               {allBids.length === 0 ? (
                 <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-                  <p className="text-sm text-muted-foreground">No bids received yet for this request.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No bids received yet for this request.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -288,7 +300,9 @@ export default async function SourcingDetail({
                           </div>
                           <div className="text-lg font-bold text-primary">
                             ${bid.bidUnitPrice}
-                            <span className="text-[10px] text-muted-foreground ml-1">/unit</span>
+                            <span className="text-[10px] text-muted-foreground ml-1">
+                              /unit
+                            </span>
                           </div>
                         </div>
                         <div className="text-right">
@@ -300,10 +314,14 @@ export default async function SourcingDetail({
                           </div>
                         </div>
                         <Badge
-                          variant={bid.status === "accepted" ? "default" : "secondary"}
+                          variant={
+                            bid.status === "accepted" ? "default" : "secondary"
+                          }
                           className={cn(
                             "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg",
-                            bid.status === "accepted" ? "bg-emerald-500 hover:bg-emerald-600" : "",
+                            bid.status === "accepted"
+                              ? "bg-emerald-500 hover:bg-emerald-600"
+                              : "",
                           )}
                         >
                           {bid.status}
@@ -327,7 +345,9 @@ export default async function SourcingDetail({
                     {existingBid ? "Update Response" : "Submit Response"}
                   </CardTitle>
                   <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {existingBid ? "Modify Your Existing Quotation" : "Official Quotation Portal"}
+                    {existingBid
+                      ? "Modify Your Existing Quotation"
+                      : "Official Quotation Portal"}
                   </CardDescription>
                 </div>
               </div>
@@ -338,24 +358,31 @@ export default async function SourcingDetail({
                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                     <Info className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-bold tracking-tight mb-2">Sign in to Submit a Bid</h3>
+                  <h3 className="text-lg font-bold tracking-tight mb-2">
+                    Sign in to Submit a Bid
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-                    You must be logged in as a registered supplier to submit a quotation for this request.
+                    You must be logged in as a registered supplier to submit a
+                    quotation for this request.
                   </p>
-                  <Link href={`/sign-in?callbackUrl=/sourcing/${requestId}`}>
+                  <Link href={`/sign-in?callbackUrl=/bids/${requestId}`}>
                     <Button className="rounded-xl font-bold px-8">
                       Sign In to Continue
                     </Button>
                   </Link>
                 </div>
-              ) : session.user.role !== "supplier" && session.user.role !== "admin" ? (
+              ) : session.user.role !== "supplier" &&
+                session.user.role !== "admin" ? (
                 <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                     <Info className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-bold tracking-tight mb-2">Supplier Account Required</h3>
+                  <h3 className="text-lg font-bold tracking-tight mb-2">
+                    Supplier Account Required
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-                    Only registered suppliers can submit bids for sourcing requests.
+                    Only registered suppliers can submit bids for sourcing
+                    requests.
                   </p>
                 </div>
               ) : (
@@ -500,7 +527,7 @@ export default async function SourcingDetail({
                       {existingBid ? "Update Response" : "Submit Response"}
                       <CheckCircle2 className="ml-2 h-4 w-4" />
                     </Button>
-                    <Link href="/sourcing" className="flex-1">
+                    <Link href="/bids" className="flex-1">
                       <Button
                         variant="outline"
                         type="button"

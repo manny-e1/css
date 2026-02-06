@@ -137,8 +137,6 @@ export default async function MaterialDetailPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-
             {/* Price & Lead Time Block */}
             <Card className="border-border/40 shadow-sm rounded-xl overflow-hidden bg-background group/card transition-all">
               <CardHeader className="pb-6 border-b border-border/40 bg-muted/2">
@@ -248,10 +246,7 @@ export default async function MaterialDetailPage({
                 </div>
                 <div className="h-3 w-full bg-muted/30 rounded-full overflow-hidden mb-4">
                   <div
-                    className={cn(
-                      "h-full rounded-full",
-                      color,
-                    )}
+                    className={cn("h-full rounded-full", color)}
                     style={{ width: `${score}%` }}
                   />
                 </div>
@@ -327,7 +322,7 @@ export default async function MaterialDetailPage({
                 </p>
                 {isPro ? (
                   <Link
-                    href={`/sourcing/create${projectId ? `?projectId=${projectId}` : ""}`}
+                    href={`/bids/create${projectId ? `?projectId=${projectId}` : ""}`}
                     className="block"
                   >
                     <Button
@@ -362,7 +357,8 @@ export default async function MaterialDetailPage({
                     Supplier View
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    You are viewing this material as a supplier. Buyer actions are disabled.
+                    You are viewing this material as a supplier. Buyer actions
+                    are disabled.
                   </p>
                 </div>
                 {material.supplierEmail === user.email && (

@@ -44,7 +44,7 @@ export default async function CreateSourcingPage({
   const isSupplier = user.role === "supplier";
 
   if (isSupplier) {
-    redirect("/sourcing");
+    redirect("/bids");
   }
 
   const params = await searchParams;
@@ -54,10 +54,10 @@ export default async function CreateSourcingPage({
 
   const project = projectId
     ? await db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, projectId))
-      .then((res) => res[0])
+        .select()
+        .from(projects)
+        .where(eq(projects.id, projectId))
+        .then((res) => res[0])
     : null;
 
   const userProjects = await db
@@ -94,7 +94,7 @@ export default async function CreateSourcingPage({
     if (selectedProjectId) {
       redirect(`/projects/${selectedProjectId}`);
     } else {
-      redirect("/buyer/sourcing");
+      redirect("/buyer/bids");
     }
   }
 
@@ -102,7 +102,7 @@ export default async function CreateSourcingPage({
     <div className="container mx-auto py-12 px-6 lg:px-10 max-w-5xl">
       <div className="mb-12 space-y-6">
         <Link
-          href="/sourcing"
+          href="/bids"
           className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -117,7 +117,8 @@ export default async function CreateSourcingPage({
             Create <span className="text-primary">Sourcing Request</span>
           </h1>
           <p className="text-muted-foreground text-sm max-w-2xl leading-relaxed">
-            Broadcast your material or service needs to our network of registered suppliers.
+            Broadcast your material or service needs to our network of
+            registered suppliers.
           </p>
         </div>
       </div>
@@ -278,7 +279,7 @@ export default async function CreateSourcingPage({
                 Broadcast Request
                 <Send className="ml-2 h-4 w-4" />
               </Button>
-              <Link href="/sourcing" className="flex-1">
+              <Link href="/bids" className="flex-1">
                 <Button
                   variant="outline"
                   type="button"

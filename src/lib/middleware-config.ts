@@ -14,15 +14,15 @@ export async function roleMiddleware(
 ) {
   try {
     // Use cookie-based session check for edge runtime compatibility
-    // This is a lightweight check that only verifies session cookie existence
-    const sessionCookie = request.cookies.get("better-auth.session_token");
+    const sessionToken =
+      request.cookies.get("better-auth.session_token")?.value ||
+      request.cookies.get("__Secure-better-auth.session_token")?.value;
 
-    if (!sessionCookie) {
+    if (!sessionToken) {
       return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
 
     // For better security, we'll do a lightweight session validation
-    // In production, you might want to use a more robust approach
     const sessionResponse = await fetch(
       new URL("/api/auth/get-session", request.url),
       {
@@ -96,6 +96,26 @@ export const ROUTE_CONFIGS: Record<string, ProtectedRouteConfig> = {
     redirectTo: "/unauthorized",
   },
 
+  "/inquiries": {
+    permissions: [
+      "inquiry:create",
+      "inquiry:read",
+      "inquiry:update",
+      "inquiry:delete",
+    ],
+    redirectTo: "/unauthorized",
+  },
+
+  "/bids": {
+    permissions: ["sourcing:read"],
+    redirectTo: "/unauthorized",
+  },
+
+  "/orders": {
+    permissions: ["order:read"],
+    redirectTo: "/unauthorized",
+  },
+
   // Materials management (supplier and admin)
   "/materials/manage": {
     roles: ["admin", "supplier"],
@@ -105,17 +125,6 @@ export const ROUTE_CONFIGS: Record<string, ProtectedRouteConfig> = {
   // Inquiries creation (any authenticated professional/admin)
   "/inquiries/create": {
     permissions: ["inquiry:create"],
-    redirectTo: "/unauthorized",
-  },
-
-  // Inquiry management
-  "/inquiries": {
-    permissions: [
-      "inquiry:create",
-      "inquiry:read",
-      "inquiry:update",
-      "inquiry:delete",
-    ],
     redirectTo: "/unauthorized",
   },
 };

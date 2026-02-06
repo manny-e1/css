@@ -21,7 +21,7 @@ import {
 import {
   listMyBidsAction,
   listOpenSourcingRequestsAction,
-} from "@/app/sourcing/actions";
+} from "@/app/bids/actions";
 import { getSupplierInquiriesAction } from "@/app/supplier/inquiries/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -212,8 +212,8 @@ export default async function SupplierDashboard() {
                               <Calendar className="h-4 w-4 text-primary" />
                               {inquiry.createdAt
                                 ? new Date(
-                                  inquiry.createdAt,
-                                ).toLocaleDateString()
+                                    inquiry.createdAt,
+                                  ).toLocaleDateString()
                                 : "N/A"}
                             </div>
                             <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export default async function SupplierDashboard() {
                 Market Opportunities
               </h2>
               <Link
-                href="/sourcing"
+                href="/bids"
                 className="text-[10px] font-bold text-primary uppercase tracking-wider hover:opacity-70 transition-opacity flex items-center gap-2 group/link"
               >
                 Browse All{" "}
@@ -298,7 +298,7 @@ export default async function SupplierDashboard() {
                       <p className="text-base text-muted-foreground line-clamp-2 mb-8 leading-relaxed">
                         {req.description}
                       </p>
-                      <Link href={`/sourcing/${req.id}`} className="w-full">
+                      <Link href={`/bids/${req.id}`} className="w-full">
                         <Button className="w-full h-12 rounded-xl font-bold text-xs uppercase tracking-wider bg-primary text-white transition-all">
                           View & Bid
                         </Button>
@@ -408,14 +408,19 @@ export default async function SupplierDashboard() {
                         </Badge>
                       </div>
                       <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">
-                        Qty: {order.quantity} • Buyer: {order.buyer?.name || "Direct"}
+                        Qty: {order.quantity} • Buyer:{" "}
+                        {order.buyer?.name || "Direct"}
                       </div>
                       <div className="pt-4 border-t border-dashed border-border flex items-center justify-between">
                         <span className="text-xs font-bold text-primary">
-                          {order.totalPrice ? `$${order.totalPrice}` : "Price TBD"}
+                          {order.totalPrice
+                            ? `$${order.totalPrice}`
+                            : "Price TBD"}
                         </span>
                         <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">
-                          {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}
+                          {order.createdAt
+                            ? new Date(order.createdAt).toLocaleDateString()
+                            : "N/A"}
                         </span>
                       </div>
                     </CardContent>

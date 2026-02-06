@@ -5,8 +5,8 @@ import { useEffect, useState, useCallback } from "react";
 import {
   listMyNotificationsAction,
   markNotificationAsReadAction,
-  clearAllNotificationsAction
-} from "@/app/sourcing/actions";
+  clearAllNotificationsAction,
+} from "@/app/bids/actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,13 +35,13 @@ export function NotificationBell() {
     try {
       const data = await listMyNotificationsAction();
       // Ensure data is typed correctly
-      const typedData = data.map(n => ({
+      const typedData = data.map((n) => ({
         ...n,
-        createdAt: new Date(n.createdAt)
+        createdAt: new Date(n.createdAt),
       })) as Notification[];
 
       setNotifications(typedData);
-      setUnreadCount(typedData.filter(n => !n.read).length);
+      setUnreadCount(typedData.filter((n) => !n.read).length);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     }
@@ -57,10 +57,10 @@ export function NotificationBell() {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markNotificationAsReadAction(id);
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
     }
@@ -78,17 +78,25 @@ export function NotificationBell() {
 
   const getIcon = (type: string | null) => {
     switch (type) {
-      case "success": return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-      case "warning": return <AlertCircle className="h-4 w-4 text-amber-500" />;
-      case "error": return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Info className="h-4 w-4 text-blue-500" />;
+      case "success":
+        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      case "warning":
+        return <AlertCircle className="h-4 w-4 text-amber-500" />;
+      case "error":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Info className="h-4 w-4 text-blue-500" />;
     }
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-muted transition-colors">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-10 w-10 rounded-full hover:bg-muted transition-colors"
+        >
           <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
             <span className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white ring-2 ring-background">
@@ -97,12 +105,20 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0 rounded-3xl border-border/50 shadow-2xl overflow-hidden">
+      <DropdownMenuContent
+        align="end"
+        className="w-80 p-0 rounded-3xl border-border/50 shadow-2xl overflow-hidden"
+      >
         <div className="p-6 border-b border-border/50 bg-muted/5">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Notifications</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest text-foreground">
+              Notifications
+            </h3>
             {unreadCount > 0 && (
-              <Badge variant="outline" className="rounded-full text-[10px] font-bold border-primary/20 text-primary">
+              <Badge
+                variant="outline"
+                className="rounded-full text-[10px] font-bold border-primary/20 text-primary"
+              >
                 {unreadCount} New
               </Badge>
             )}
@@ -114,7 +130,9 @@ export function NotificationBell() {
               <div className="h-12 w-12 bg-muted/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Bell className="h-6 w-6 text-muted-foreground/20" />
               </div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">All caught up!</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                All caught up!
+              </p>
             </div>
           ) : (
             notifications.map((notification) => (
@@ -122,7 +140,7 @@ export function NotificationBell() {
                 key={notification.id}
                 className={cn(
                   "p-5 border-b border-border/50 transition-colors hover:bg-muted/30 relative group",
-                  !notification.read && "bg-primary/2"
+                  !notification.read && "bg-primary/2",
                 )}
               >
                 <div className="flex gap-4">
@@ -131,10 +149,14 @@ export function NotificationBell() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={cn(
-                        "text-xs font-black tracking-tight mb-1 truncate",
-                        !notification.read ? "text-foreground" : "text-muted-foreground"
-                      )}>
+                      <p
+                        className={cn(
+                          "text-xs font-black tracking-tight mb-1 truncate",
+                          !notification.read
+                            ? "text-foreground"
+                            : "text-muted-foreground",
+                        )}
+                      >
                         {notification.title}
                       </p>
                       <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter whitespace-nowrap mt-0.5">

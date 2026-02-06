@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { acceptBidAction } from "@/app/sourcing/actions";
+import { acceptBidAction } from "@/app/bids/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -135,7 +135,9 @@ export function SourcingBidsDialog({
                             <User className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Supplier</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                              Supplier
+                            </p>
                             <h4 className="text-lg font-black tracking-tight text-foreground">
                               {bid.supplierName || "Independent Supplier"}
                             </h4>
@@ -149,28 +151,40 @@ export function SourcingBidsDialog({
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Price</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                              Price
+                            </p>
                             <div className="flex items-baseline gap-1">
-                              <span className="text-2xl font-black tracking-tighter text-foreground">${bid.bidUnitPrice}</span>
-                              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">/unit</span>
+                              <span className="text-2xl font-black tracking-tighter text-foreground">
+                                ${bid.bidUnitPrice}
+                              </span>
+                              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                                /unit
+                              </span>
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Lead Time</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                              Lead Time
+                            </p>
                             <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                               <Clock className="h-4 w-4 text-primary" />
                               {bid.leadTimeEstimate || "TBD"}
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Min Order</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                              Min Order
+                            </p>
                             <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                               <Package className="h-4 w-4 text-primary" />
                               {bid.minimumOrder || "None"}
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Status</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                              Status
+                            </p>
                             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-600">
                               {bid.status || "Pending"}
                             </div>
@@ -201,7 +215,11 @@ export function SourcingBidsDialog({
                         )}
 
                         {bid.quoteUrl && (
-                          <a href={bid.quoteUrl} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={bid.quoteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <Button
                               variant="outline"
                               className="w-full h-12 rounded-xl border-border font-bold text-[10px] uppercase tracking-wider gap-2.5"

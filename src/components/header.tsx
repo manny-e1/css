@@ -54,7 +54,7 @@ export default function Header() {
     if (!user) {
       return [
         { href: "/materials", label: "Materials" },
-        { href: "/sourcing", label: "Sourcing" },
+        { href: "/bids", label: "Bids" },
       ];
     }
 
@@ -64,7 +64,7 @@ export default function Header() {
           { href: "/professional/dashboard", label: "Dashboard" },
           { href: "/projects", label: "Projects" },
           { href: "/materials", label: "Materials" },
-          { href: "/sourcing", label: "Sourcing" },
+          { href: "/bids", label: "Bids" },
           { href: "/inquiries", label: "Inquiries" },
           { href: "/orders", label: "Orders" },
           { href: "/admin/users", label: "Users" },
@@ -75,7 +75,7 @@ export default function Header() {
           { href: "/professional/dashboard", label: "Dashboard" },
           { href: "/projects", label: "Projects" },
           { href: "/materials", label: "Materials" },
-          { href: "/sourcing", label: "Sourcing" },
+          { href: "/bids", label: "Bids" },
           { href: "/inquiries", label: "Inquiries" },
           { href: "/orders", label: "Orders" },
         ];
@@ -83,19 +83,19 @@ export default function Header() {
         return [
           { href: "/supplier/dashboard", label: "Dashboard" },
           { href: "/supplier/materials", label: "My Materials" },
-          { href: "/sourcing", label: "Sourcing" },
+          { href: "/bids", label: "Bids" },
           { href: "/supplier/inquiries", label: "Inquiries" },
           { href: "/supplier/orders", label: "Orders" },
         ];
       case "buyer":
         return [
           { href: "/materials", label: "Materials" },
-          { href: "/sourcing", label: "Sourcing" },
+          { href: "/bids", label: "Bids" },
         ];
       default:
         return [
           { href: "/materials", label: "Materials" },
-          { href: "/sourcing", label: "Sourcing" },
+          { href: "/bids", label: "Bids" },
         ];
     }
   };
@@ -151,19 +151,22 @@ export default function Header() {
               }
             />
           )}
-          {user && (user.role === "professional" || user.role === "admin" || user.role === "buyer") && (
-            <Link
-              href="/materials/shortlist"
-              className="relative p-2 text-gray-600 hover:text-black"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {shortlist.length > 0 && (
-                <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                  {shortlist.length}
-                </span>
-              )}
-            </Link>
-          )}
+          {user &&
+            (user.role === "professional" ||
+              user.role === "admin" ||
+              user.role === "buyer") && (
+              <Link
+                href="/materials/shortlist"
+                className="relative p-2 text-gray-600 hover:text-black"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {shortlist.length > 0 && (
+                  <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    {shortlist.length}
+                  </span>
+                )}
+              </Link>
+            )}
           {user && (
             <div className="flex items-center gap-4 border-r pr-4">
               <NotificationBell />

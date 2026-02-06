@@ -27,7 +27,7 @@ import { removeMaterialAction } from "@/app/projects/remove-material-action";
 import {
   listProjectSourcingRequestsAction,
   listRequestBidsAction,
-} from "@/app/sourcing/actions";
+} from "@/app/bids/actions";
 import { RemoveMaterialButton } from "@/components/remove-material-button";
 import { SourcingBidsDialog } from "@/components/sourcing-bids-dialog";
 import { AddMaterialDialog } from "@/components/add-material-dialog";
@@ -35,12 +35,7 @@ import { MaterialAlternativesDialog } from "@/components/material-alternatives-d
 import { BulkOrderButton } from "@/components/bulk-order-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UpdatePriceInput } from "@/components/update-price-input";
 import { UpdateQuantityInput } from "@/components/update-quantity-input";
 import { auth } from "@/lib/auth";
@@ -396,7 +391,7 @@ export default async function ProjectPage({
                     <p className="text-sm text-muted-foreground mb-8">
                       No active sourcing requests.
                     </p>
-                    <Link href={`/sourcing/create?projectId=${projectId}`}>
+                    <Link href={`/bids/create?projectId=${projectId}`}>
                       <Button className="h-12 px-6 rounded-xl font-bold bg-primary text-white shadow-sm transition-all">
                         <Plus className="h-4 w-4 mr-2" />
                         New Request
@@ -435,7 +430,7 @@ export default async function ProjectPage({
                   ))
                 )}
                 <Link
-                  href={`/sourcing/create?projectId=${projectId}`}
+                  href={`/bids/create?projectId=${projectId}`}
                   className="block"
                 >
                   <Button
@@ -595,7 +590,7 @@ export default async function ProjectPage({
                                     </Button>
                                   </Link>
                                   <Link
-                                    href={`/sourcing/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
+                                    href={`/bids/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
                                   >
                                     <Button
                                       variant="outline"
@@ -661,7 +656,9 @@ export default async function ProjectPage({
                         role="img"
                         aria-labelledby="carbon-summary-title"
                       >
-                        <title id="carbon-summary-title">Carbon Summary Chart</title>
+                        <title id="carbon-summary-title">
+                          Carbon Summary Chart
+                        </title>
                         <circle
                           cx="50"
                           cy="50"
@@ -825,9 +822,7 @@ export default async function ProjectPage({
                       <p className="text-sm text-foreground/80 leading-relaxed">
                         Timber frame alternatives for partitions could reduce
                         structural carbon by up to{" "}
-                        <span className="font-bold text-foreground">
-                          45%
-                        </span>{" "}
+                        <span className="font-bold text-foreground">45%</span>{" "}
                         compared to steel studs.
                       </p>
                     </div>
@@ -849,7 +844,7 @@ export default async function ProjectPage({
                     <ClipboardList className="h-4 w-4" />
                     Active Sourcing Requests
                   </h3>
-                  <Link href={`/sourcing/create?projectId=${projectId}`}>
+                  <Link href={`/bids/create?projectId=${projectId}`}>
                     <Button
                       variant="outline"
                       className="h-10 px-4 rounded-xl text-[10px] font-bold uppercase tracking-wider text-primary border-border/50 hover:bg-primary/5 transition-all"
@@ -869,7 +864,7 @@ export default async function ProjectPage({
                       <p className="text-xs font-medium text-muted-foreground/60 mb-8">
                         No active sourcing requests for this project.
                       </p>
-                      <Link href={`/sourcing/create?projectId=${projectId}`}>
+                      <Link href={`/bids/create?projectId=${projectId}`}>
                         <Button className="h-12 px-8 rounded-xl font-bold bg-primary text-white shadow-sm transition-all uppercase tracking-wider text-xs">
                           <Plus className="h-4 w-4 mr-2" />
                           Start Sourcing
@@ -1146,7 +1141,7 @@ export default async function ProjectPage({
                       explorer?
                     </p>
                   </div>
-                  <Link href={`/sourcing/create?projectId=${projectId}`}>
+                  <Link href={`/bids/create?projectId=${projectId}`}>
                     <Button className="w-full h-12 bg-white text-primary rounded-xl font-bold uppercase tracking-wider text-[10px] hover:bg-white/90 transition-all">
                       Create Open Request
                     </Button>

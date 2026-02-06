@@ -52,7 +52,7 @@ export async function createSourcingRequestAction(input: {
     })
     .returning();
 
-  revalidatePath("/sourcing");
+  revalidatePath("/bids");
   if (input.projectId) {
     revalidatePath(`/projects/${input.projectId}`);
   }
@@ -146,15 +146,15 @@ export async function submitBidAction(input: {
         title: "Bid Updated",
         message: `A supplier has updated their bid for ${request.category}.`,
         type: "info",
-        link: `/buyer/sourcing`,
+        link: `/buyer/bids`,
         read: false,
       });
     }
 
-    revalidatePath("/sourcing");
+    revalidatePath("/bids");
     revalidatePath("/supplier/dashboard");
     revalidatePath("/supplier/bids");
-    revalidatePath("/buyer/sourcing");
+    revalidatePath("/buyer/bids");
     return updatedBid;
   }
 
@@ -181,15 +181,15 @@ export async function submitBidAction(input: {
       title: "New Bid Received",
       message: `You have received a new bid for ${request.category}.`,
       type: "info",
-      link: `/buyer/sourcing`,
+      link: `/buyer/bids`,
       read: false,
     });
   }
 
-  revalidatePath("/sourcing");
+  revalidatePath("/bids");
   revalidatePath("/supplier/dashboard");
   revalidatePath("/supplier/bids");
-  revalidatePath("/buyer/sourcing");
+  revalidatePath("/buyer/bids");
   return bid;
 }
 
@@ -415,6 +415,6 @@ export async function acceptBidAction(bidId: string) {
   if (request.projectId) {
     revalidatePath(`/projects/${request.projectId}`);
   }
-  revalidatePath("/sourcing");
+  revalidatePath("/bids");
   return { success: true };
 }

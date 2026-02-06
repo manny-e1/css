@@ -48,9 +48,7 @@ function SourcingLink() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
   return (
-    <Link
-      href={`/sourcing/create${projectId ? `?projectId=${projectId}` : ""}`}
-    >
+    <Link href={`/bids/create${projectId ? `?projectId=${projectId}` : ""}`}>
       <Button className="h-12 px-6 rounded-xl font-bold bg-primary text-white shadow-sm transition-all">
         <Plus className="h-4 w-4 mr-2" />
         New Request
