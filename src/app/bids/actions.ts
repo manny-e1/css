@@ -15,6 +15,7 @@ import {
 import { auth } from "@/lib/auth";
 import { requirePermission } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
+import { authUser } from "@/db/auth-schema";
 
 // Create a sourcing request
 export async function createSourcingRequestAction(input: {
@@ -120,8 +121,8 @@ export async function submitBidAction(input: {
   // Verify supplier role
   const [supplierProfile] = await db
     .select()
-    .from(users)
-    .where(and(eq(users.id, user.id), eq(users.role, "supplier")));
+    .from(authUser)
+    .where(and(eq(authUser.id, user.id), eq(authUser.role, "supplier")));
 
   if (!supplierProfile) throw new Error("Only suppliers can submit bids");
 

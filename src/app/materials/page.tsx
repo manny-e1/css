@@ -3,7 +3,7 @@
 import { Building2, Check, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MaterialCarousel } from "@/components/material-carousel";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +48,13 @@ interface CategoryWithSubs {
   subCategories: { id: string; name: string }[];
 }
 
-export default function MaterialsPage() {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+export default function MaterialsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ projectId?: string }>;
+}) {
+  const params = use(searchParams);
+  const projectId = params.projectId;
   const [materials, setMaterials] = useState<MaterialWithInquiryCount[]>([]);
   const [categories, setCategories] = useState<CategoryWithSubs[]>([]);
   const [loading, setLoading] = useState(true);

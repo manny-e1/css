@@ -38,10 +38,6 @@ export default function SignUpClient() {
       if (error) {
         throw new Error(error.message || "Sign-up failed");
       }
-      await authClient.sendVerificationEmail({
-        user: data.user,
-        url: "/materials",
-      });
       // If a specific role was requested (e.g., supplier), update it after signup
       if (data?.user?.id && requestedRole === "supplier") {
         await updateUserRole(data.user.id, "supplier");

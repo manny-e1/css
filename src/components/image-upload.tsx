@@ -40,6 +40,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const onUpload = () => {
     if (!isLoaded || !window.cloudinary) return;
+    console.log("here", window.cloudinary);
 
     let currentImages = [...value];
 
@@ -53,6 +54,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         resourceType: "image",
       },
       (error: any, result: any) => {
+        console.log({ result });
         if (!error && result && result.event === "success") {
           currentImages = [...currentImages, result.info.secure_url];
           onChange(currentImages);

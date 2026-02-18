@@ -14,6 +14,7 @@ import {
   users,
 } from "@/db/new-schema";
 import { auth } from "@/lib/auth";
+import { authUser } from "@/db/auth-schema";
 
 export async function getSessionEmail() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -23,12 +24,12 @@ export async function getSessionEmail() {
 export async function getDomainUser(email: string) {
   const [existing] = await db
     .select()
-    .from(users)
-    .where(eq(users.email, email));
+    .from(authUser)
+    .where(eq(authUser.email, email));
   if (existing) return existing;
   const userId = crypto.randomUUID();
   const [created] = await db
-    .insert(users)
+    .insert(authUser)
     .values({
       id: userId,
       email,

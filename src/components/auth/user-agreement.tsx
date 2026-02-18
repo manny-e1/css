@@ -400,7 +400,7 @@ export function UserAgreement({
     );
 
   return (
-    <div className="flex items-start space-x-2">
+    <div className="flex items-center space-x-2 justify-start">
       <input
         type="checkbox"
         id="terms"

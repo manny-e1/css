@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "better-auth";
-import { ShoppingCart, Sparkles } from "lucide-react";
+import { ShoppingCart, Sparkles, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -23,6 +23,7 @@ export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { shortlist } = useShortlist();
 
   const checkSession = useCallback(async () => {
@@ -122,25 +123,30 @@ export default function Header() {
   const navigation = getRoleBasedNavigation();
 
   return (
-    <header className="border-b">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between py-4">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="font-semibold">
-            Carbon Smart Spaces
-          </Link>
+    <header className="border-b bg-white sticky top-0 z-40">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between py-4 px-4">
+        {/* Logo */}
+        <Link href="/" className="font-semibold text-base sm:text-lg shrink-0">
+          Carbon Smart Spaces
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-8">
           <div className="flex gap-4 text-sm">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-gray-600 hover:text-black"
+                className="text-gray-600 hover:text-black whitespace-nowrap"
               >
                 {item.label}
               </Link>
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-4">
+
+        {/* Desktop Right Section */}
+        <div className="hidden lg:flex items-center gap-4">
           {user && user.role === "buyer" && (
             <UpgradePrompt
               trigger={
@@ -183,7 +189,9 @@ export default function Header() {
           <div className="flex gap-4 text-sm">
             {user ? (
               <>
-                <span className="text-gray-600">{user.email}</span>
+                <span className="text-gray-600 hidden xl:inline">
+                  {user.email}
+                </span>
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -206,17 +214,123 @@ export default function Header() {
                 >
                   Sign Up
                 </Link>
-                <Link
-                  href="/auth/sign-up?role=supplier"
-                  className="text-gray-600 hover:text-black border-l pl-4"
-                >
-                  Become a Supplier
-                </Link>
               </>
             )}
           </div>
         </div>
+
+        {/* Mobile Menu Button & Icons */}
+        <div className="flex lg:hidden items-center gap-3">
+          {/* Shortlist Icon (Mobile) */}
+          {user &&
+            (user.role === "professional" ||
+              user.role === "admin" ||
+              user.role === "buyer") && (
+              <Link
+                href="/materials/shortlist"
+                className="relative p-2 text-gray-600 hover:text-black"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {shortlist.length > 0 && (
+                  <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    {shortlist.length}
+                  </span>
+                )}
+              </Link>
+            )}
+
+          {/* Notification Bell (Mobile) */}
+          {user && <NotificationBell />}
+
+          {/* Hamburger Menu Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-gray-600 hover:text-black"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t bg-white">
+          <div className="px-4 py-4 space-y-3">
+            {/* Navigation Links */}
+            {navigation.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-gray-600 hover:text-black text-sm"
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            {/* Divider */}
+            <div className="border-t pt-3 mt-3">
+              {/* Upgrade Button (Mobile) */}
+              {user && user.role === "buyer" && (
+                <div className="mb-3">
+                  <UpgradePrompt
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-8 gap-2 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary rounded-full px-4 text-[10px] font-black uppercase tracking-widest"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        Upgrade to Pro
+                      </Button>
+                    }
+                  />
+                </div>
+              )}
+
+              {/* Auth Section */}
+              {user ? (
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-600 py-2">{user.email}</div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left py-2 text-sm text-gray-600 hover:text-black"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Link
+                    href="/auth/sign-in"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2 text-sm text-gray-600 hover:text-black"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/sign-up"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2 text-sm text-gray-600 hover:text-black"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
