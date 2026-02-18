@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { type Role } from "@/lib/roles";
+import type { Role } from "@/lib/roles";
 
 interface RoleSwitcherProps {
   userId: string;

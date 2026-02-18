@@ -3,8 +3,9 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { authUser } from "@/db/auth-schema";
 import { db } from "@/db/client";
-import { materials, users } from "@/db/new-schema";
+import { materials } from "@/db/new-schema";
 import { auth } from "@/lib/auth";
 
 async function getSession() {
@@ -14,20 +15,21 @@ async function getSession() {
 }
 
 async function requireAdmin(sessionEmail: string) {
-  const [domainUser] = await db
+  const [user] = await db
     .select()
-    .from(users)
-    .where(eq(users.email, sessionEmail));
-  if (!domainUser) throw new Error("User not found");
-  // TODO: Implement proper admin role checking when role field is added to new-schema.ts
-  // For now, we'll allow access to all authenticated users
-  return domainUser;
+    .from(authUser)
+    .where(eq(authUser.email, sessionEmail));
+
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized: Admin access required");
+  }
+  return user;
 }
 
 export async function listMaterialSubmissionsAction() {
   const session = await getSession();
   await requireAdmin(session.user.email);
-  return await db.select().from(materials).where(eq(materials.approved, false));
+  return await db.select().from(materials);
 }
 
 export async function approveMaterialSubmissionAction(id: string) {
@@ -38,12 +40,12 @@ export async function approveMaterialSubmissionAction(id: string) {
     .from(materials)
     .where(eq(materials.id, id));
   if (!material) throw new Error("Material not found");
-  if (material.approved) throw new Error("Material already approved");
 
   await db
     .update(materials)
     .set({
       approved: true,
+      rejectionReason: null,
     })
     .where(eq(materials.id, id));
 
@@ -52,7 +54,7 @@ export async function approveMaterialSubmissionAction(id: string) {
 
 export async function rejectMaterialSubmissionAction(
   id: string,
-  _note?: string,
+  reason: string,
 ) {
   const session = await getSession();
   await requireAdmin(session.user.email);
@@ -61,9 +63,14 @@ export async function rejectMaterialSubmissionAction(
     .from(materials)
     .where(eq(materials.id, id));
   if (!material) throw new Error("Material not found");
-  if (material.approved) throw new Error("Cannot reject approved material");
 
-  await db.delete(materials).where(eq(materials.id, id));
+  await db
+    .update(materials)
+    .set({
+      approved: false,
+      rejectionReason: reason,
+    })
+    .where(eq(materials.id, id));
 
   revalidatePath("/admin/materials");
 }

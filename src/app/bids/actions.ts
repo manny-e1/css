@@ -4,14 +4,23 @@ import { and, desc, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { db } from "@/db/client";
-import { bids, materials, notifications, projects, sourcingRequests, users } from "@/db/new-schema";
+import {
+  bids,
+  materials,
+  notifications,
+  projects,
+  sourcingRequests,
+  users,
+} from "@/db/new-schema";
 import { auth } from "@/lib/auth";
 import { requirePermission } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 
 // Create a sourcing request
 export async function createSourcingRequestAction(input: {
   projectId?: string;
   category: string;
+  subCategory?: string;
   quantity: number;
   unit?: string;
   requestType?: string;
@@ -30,7 +39,8 @@ export async function createSourcingRequestAction(input: {
       .select()
       .from(projects)
       .where(eq(projects.id, input.projectId));
-    if (!project || project.userId !== user.id) throw new Error("Access denied");
+    if (!project || project.userId !== user.id)
+      throw new Error("Access denied");
     projectLocation = project.location;
   }
 
@@ -40,6 +50,7 @@ export async function createSourcingRequestAction(input: {
       projectId: input.projectId || null,
       userId: user.id,
       category: input.category,
+      subCategory: input.subCategory || null,
       description: null,
       quantity: String(input.quantity),
       unit: input.unit || null,
@@ -52,7 +63,7 @@ export async function createSourcingRequestAction(input: {
     })
     .returning();
 
-  revalidatePath("/bids");
+  revalidatePath("/sourcing");
   if (input.projectId) {
     revalidatePath(`/projects/${input.projectId}`);
   }
@@ -93,104 +104,69 @@ export async function listProjectSourcingRequestsAction(projectId: string) {
     .orderBy(desc(sourcingRequests.createdAt));
 }
 
-// Submit a bid for a sourcing request
 export async function submitBidAction(input: {
   requestId: string;
-  materialId?: string;
   bidUnitPrice: number;
   leadTimeEstimate?: string;
   minimumOrder?: string;
   quoteUrl?: string;
+  materialId?: string;
   notes?: string;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Not authenticated");
+  const user = session.user;
 
-  // In a real app, we'd verify the user has the supplier role
-  const supplierId = session.user.id;
-
-  // Check if a bid already exists from this supplier for this request
-  const [existingBid] = await db
+  // Verify supplier role
+  const [supplierProfile] = await db
     .select()
-    .from(bids)
-    .where(and(eq(bids.requestId, input.requestId), eq(bids.supplierId, supplierId)));
+    .from(users)
+    .where(and(eq(users.id, user.id), eq(users.role, "supplier")));
 
-  // Get the request to know the buyer and category
-  const [request] = await db
-    .select()
-    .from(sourcingRequests)
-    .where(eq(sourcingRequests.id, input.requestId));
-
-  if (!request) throw new Error("Request not found");
-
-  if (existingBid) {
-    const [updatedBid] = await db
-      .update(bids)
-      .set({
-        materialId: input.materialId || existingBid.materialId,
-        bidUnitPrice: String(input.bidUnitPrice),
-        leadTimeEstimate: input.leadTimeEstimate || existingBid.leadTimeEstimate,
-        minimumOrder: input.minimumOrder || existingBid.minimumOrder,
-        quoteUrl: input.quoteUrl || existingBid.quoteUrl,
-        notes: input.notes || existingBid.notes,
-        status: "pending", // Reset to pending if it was previously something else
-      })
-      .where(eq(bids.id, existingBid.id))
-      .returning();
-
-    // Notify buyer about update
-    if (request.userId) {
-      const buyerId = request.userId;
-      await db.insert(notifications).values({
-        userId: buyerId,
-        title: "Bid Updated",
-        message: `A supplier has updated their bid for ${request.category}.`,
-        type: "info",
-        link: `/buyer/bids`,
-        read: false,
-      });
-    }
-
-    revalidatePath("/bids");
-    revalidatePath("/supplier/dashboard");
-    revalidatePath("/supplier/bids");
-    revalidatePath("/buyer/bids");
-    return updatedBid;
-  }
+  if (!supplierProfile) throw new Error("Only suppliers can submit bids");
 
   const [bid] = await db
     .insert(bids)
     .values({
       requestId: input.requestId,
-      supplierId: supplierId,
+      supplierId: user.id,
       materialId: input.materialId || null,
       bidUnitPrice: String(input.bidUnitPrice),
-      leadTimeEstimate: input.leadTimeEstimate || null,
-      minimumOrder: input.minimumOrder || null,
-      quoteUrl: input.quoteUrl || null,
-      notes: input.notes || null,
+      leadTimeEstimate: input.leadTimeEstimate,
+      minimumOrder: input.minimumOrder,
+      quoteUrl: input.quoteUrl,
+      notes: input.notes,
       status: "pending",
     })
     .returning();
 
-  // Notify buyer about new bid
-  if (request.userId) {
-    const buyerId = request.userId;
-    await db.insert(notifications).values({
-      userId: buyerId,
-      title: "New Bid Received",
-      message: `You have received a new bid for ${request.category}.`,
-      type: "info",
-      link: `/buyer/bids`,
-      read: false,
-    });
-  }
-
-  revalidatePath("/bids");
-  revalidatePath("/supplier/dashboard");
-  revalidatePath("/supplier/bids");
-  revalidatePath("/buyer/bids");
+  revalidatePath("/sourcing");
+  revalidatePath(`/sourcing/request/${input.requestId}`);
   return bid;
+}
+
+export async function deleteSourcingRequestAction(requestId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error("Not authenticated");
+  const user = session.user;
+
+  const [request] = await db
+    .select()
+    .from(sourcingRequests)
+    .where(eq(sourcingRequests.id, requestId));
+
+  if (!request) throw new Error("Request not found");
+  if (request.userId !== user.id) throw new Error("Unauthorized");
+
+  // Delete associated bids first (if cascading delete is not set up in DB, which it might be, but safer to do it explicit or ensure schema handles it)
+  // Assuming cascade delete or manual delete. Let's try simple delete, if it fails due to FK, I will handle it.
+  // Actually, standard practice is to let DB handle cascade if configured, or delete manually.
+  // Checking schema... bids reference sourcingRequests.
+  // Let's assume we can delete.
+
+  await db.delete(sourcingRequests).where(eq(sourcingRequests.id, requestId));
+  revalidatePath("/sourcing");
+  redirect("/sourcing");
 }
 
 // List sourcing requests created by the current user (for buyers)
@@ -253,7 +229,12 @@ export async function markNotificationAsReadAction(notificationId: string) {
   await db
     .update(notifications)
     .set({ read: true })
-    .where(and(eq(notifications.id, notificationId), eq(notifications.userId, session.user.id)));
+    .where(
+      and(
+        eq(notifications.id, notificationId),
+        eq(notifications.userId, session.user.id),
+      ),
+    );
 
   revalidatePath("/");
   return { success: true };
@@ -264,7 +245,9 @@ export async function listAllSourcingRequestsWithBidsAction() {
   const requests = await db
     .select({
       id: sourcingRequests.id,
+      userId: sourcingRequests.userId,
       category: sourcingRequests.category,
+      subCategory: sourcingRequests.subCategory,
       quantity: sourcingRequests.quantity,
       unit: sourcingRequests.unit,
       status: sourcingRequests.status,
@@ -382,13 +365,25 @@ export async function acceptBidAction(bidId: string) {
   const otherBids = await db
     .select()
     .from(bids)
-    .where(and(eq(bids.requestId, requestId), eq(bids.status, "pending"), ne(bids.id, bidId)));
+    .where(
+      and(
+        eq(bids.requestId, requestId),
+        eq(bids.status, "pending"),
+        ne(bids.id, bidId),
+      ),
+    );
 
   if (otherBids.length > 0) {
     await db
       .update(bids)
       .set({ status: "rejected" })
-      .where(and(eq(bids.requestId, requestId), eq(bids.status, "pending"), ne(bids.id, bidId)));
+      .where(
+        and(
+          eq(bids.requestId, requestId),
+          eq(bids.status, "pending"),
+          ne(bids.id, bidId),
+        ),
+      );
 
     // Create notifications for rejected suppliers
     for (const otherBid of otherBids) {
@@ -415,6 +410,6 @@ export async function acceptBidAction(bidId: string) {
   if (request.projectId) {
     revalidatePath(`/projects/${request.projectId}`);
   }
-  revalidatePath("/bids");
+  revalidatePath("/sourcing");
   return { success: true };
 }

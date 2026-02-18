@@ -114,7 +114,7 @@ export function compareToBaseline(params: {
   const costMidDiffPct =
     baselineCostMidPerUnit > 0
       ? (materialCostMidPerUnit - baselineCostMidPerUnit) /
-        baselineCostMidPerUnit
+      baselineCostMidPerUnit
       : 0;
 
   return {
@@ -133,7 +133,9 @@ export function calculateCarbonScore(
   grade: "A" | "B" | "C" | "D";
   color: string;
 } {
-  const base = BASELINE[category as keyof typeof BASELINE] || BASELINE.finishes;
+  const normalizedCategory = (category || "").toLowerCase();
+  const base =
+    BASELINE[normalizedCategory as keyof typeof BASELINE] || BASELINE.finishes;
 
   // Following cssmap.txt logic:
   // score = ((value - min) / (max - min)) * 100

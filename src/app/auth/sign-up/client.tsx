@@ -2,12 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { updateUserRole } from "@/app/actions/update-user-role";
+import { UserAgreement } from "@/components/auth/user-agreement";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { updateUserRole } from "@/app/actions/update-user-role";
-import { type Role } from "@/lib/roles";
+import type { Role } from "@/lib/roles";
 
 export default function SignUpClient() {
   const router = useRouter();
@@ -16,11 +17,16 @@ export default function SignUpClient() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const requestedRole = searchParams.get("role") as Role | null;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!agreed) {
+      alert("Please agree to the User Agreement");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const { data, error } = await authClient.signUp.email({
@@ -32,17 +38,22 @@ export default function SignUpClient() {
       if (error) {
         throw new Error(error.message || "Sign-up failed");
       }
-
+      await authClient.sendVerificationEmail({
+        user: data.user,
+        url: "/materials",
+      });
       // If a specific role was requested (e.g., supplier), update it after signup
       if (data?.user?.id && requestedRole === "supplier") {
         await updateUserRole(data.user.id, "supplier");
       }
 
-      router.push("/materials");
+      // Redirect to verify email page since email verification is now required
+      router.push("/auth/verify-email");
       router.refresh();
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      alert(e.message || "Sign-up failed");
+      const errorMessage = e instanceof Error ? e.message : "Sign-up failed";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -81,8 +92,17 @@ export default function SignUpClient() {
             required
           />
         </div>
+        <UserAgreement
+          type={requestedRole === "supplier" ? "supplier" : "buyer"}
+          checked={agreed}
+          onCheckedChange={setAgreed}
+        />
         <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Creating Account..." : requestedRole === "supplier" ? "Register as Supplier" : "Create Account"}
+          {isSubmitting
+            ? "Creating Account..."
+            : requestedRole === "supplier"
+              ? "Register as Supplier"
+              : "Create Account"}
         </Button>
       </form>
       <p className="mt-4 text-sm">

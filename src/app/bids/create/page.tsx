@@ -14,7 +14,8 @@ import {
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getMaterialCategoriesAction } from "@/app/materials/actions";
+import { getCategoriesAction } from "@/app/materials/actions";
+import { CategorySelector } from "@/components/bids/category-selector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,13 +39,13 @@ export default async function CreateSourcingPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const user = session.user;
   const isSupplier = user.role === "supplier";
 
   if (isSupplier) {
-    redirect("/bids");
+    redirect("/sourcing");
   }
 
   const params = await searchParams;
@@ -65,7 +66,7 @@ export default async function CreateSourcingPage({
     .from(projects)
     .where(eq(projects.userId, session.user.id));
 
-  const categories = await getMaterialCategoriesAction();
+  const categories = await getCategoriesAction();
 
   async function createRequest(formData: FormData) {
     "use server";
@@ -73,6 +74,7 @@ export default async function CreateSourcingPage({
       ? String(formData.get("projectId"))
       : undefined;
     const category = String(formData.get("category") ?? "");
+    const subCategory = String(formData.get("subCategory") ?? "");
     const quantity = Number(formData.get("quantity") ?? 0);
     const unit = String(formData.get("unit") ?? "");
     const requestType = String(formData.get("requestType") ?? "material");
@@ -83,6 +85,7 @@ export default async function CreateSourcingPage({
     await createSourcingRequestAction({
       projectId: selectedProjectId || undefined,
       category,
+      subCategory,
       quantity,
       unit,
       requestType,
@@ -94,7 +97,7 @@ export default async function CreateSourcingPage({
     if (selectedProjectId) {
       redirect(`/projects/${selectedProjectId}`);
     } else {
-      redirect("/buyer/bids");
+      redirect("/buyer/sourcing");
     }
   }
 
@@ -102,7 +105,7 @@ export default async function CreateSourcingPage({
     <div className="container mx-auto py-12 px-6 lg:px-10 max-w-5xl">
       <div className="mb-12 space-y-6">
         <Link
-          href="/bids"
+          href="/sourcing"
           className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -181,32 +184,12 @@ export default async function CreateSourcingPage({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                  Category selection
-                </Label>
-                <div className="relative">
-                  <select
-                    name="category"
-                    required
-                    defaultValue={initialCategory}
-                    className="w-full h-11 px-4 rounded-xl border border-border bg-background text-sm font-bold focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer"
-                  >
-                    <option value="">Select a category</option>
-                    <option value="Concrete">Concrete</option>
-                    <option value="Steel">Steel</option>
-                    <option value="Timber">Timber</option>
-                    <option value="Glass">Glass</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="HVAC">HVAC</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
+            <CategorySelector
+              categories={categories}
+              initialCategory={initialCategory}
+            />
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                   Delivery or Execution Location
@@ -221,9 +204,7 @@ export default async function CreateSourcingPage({
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-3">
                 <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                   Quantity
@@ -237,6 +218,9 @@ export default async function CreateSourcingPage({
                   className="h-11 rounded-xl border-border font-bold focus-visible:ring-0 focus-visible:border-primary"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                   Unit
@@ -279,7 +263,7 @@ export default async function CreateSourcingPage({
                 Broadcast Request
                 <Send className="ml-2 h-4 w-4" />
               </Button>
-              <Link href="/bids" className="flex-1">
+              <Link href="/sourcing" className="flex-1">
                 <Button
                   variant="outline"
                   type="button"

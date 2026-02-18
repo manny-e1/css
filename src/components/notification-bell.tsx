@@ -1,21 +1,21 @@
 "use client";
 
-import { Bell, Check, Info, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { AlertCircle, Bell, Check, CheckCircle2, Info } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import {
+  clearAllNotificationsAction,
   listMyNotificationsAction,
   markNotificationAsReadAction,
-  clearAllNotificationsAction,
 } from "@/app/bids/actions";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 interface Notification {
   id: string;

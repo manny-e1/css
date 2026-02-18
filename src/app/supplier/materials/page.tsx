@@ -21,6 +21,7 @@ interface Material {
   embodiedCarbonFactor: string;
   certification: string | null;
   approved: boolean | null;
+  rejectionReason?: string | null;
   createdAt: Date | null;
   // Additional properties used in the UI
   status?: string;
@@ -100,17 +101,33 @@ export default function SupplierMaterialsPage() {
                     variant="outline"
                     className={cn(
                       "text-[10px] font-black uppercase tracking-wider border-none px-3 py-1.5 rounded-xl",
-                      m.status === "approved"
+                      m.approved
                         ? "bg-emerald-50 text-emerald-600"
-                        : "bg-amber-50 text-amber-600",
+                        : m.rejectionReason
+                          ? "bg-rose-50 text-rose-600"
+                          : "bg-amber-50 text-amber-600",
                     )}
                   >
-                    {m.status || "pending"}
+                    {m.approved
+                      ? "approved"
+                      : m.rejectionReason
+                        ? "rejected"
+                        : "pending"}
                   </Badge>
                 </div>
                 <h3 className="text-2xl font-black tracking-tight text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-1">
                   {m.name}
                 </h3>
+                {m.rejectionReason && (
+                  <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-100">
+                    <div className="text-[9px] font-black uppercase tracking-widest text-rose-600 mb-1">
+                      Rejection Reason
+                    </div>
+                    <div className="text-xs text-rose-500 italic font-medium">
+                      "{m.rejectionReason}"
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
                   <Building2 className="h-3.5 w-3.5 opacity-40" />
                   {m.supplierName}
@@ -174,7 +191,10 @@ export default function SupplierMaterialsPage() {
                 high-performance specification.
               </p>
               <Link href="/materials/create">
-                <Button variant="outline" className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-border hover:bg-muted">
+                <Button
+                  variant="outline"
+                  className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-border hover:bg-muted"
+                >
                   List Your First Material
                 </Button>
               </Link>

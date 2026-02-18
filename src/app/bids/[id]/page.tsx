@@ -16,6 +16,7 @@ import {
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { DeleteSourcingRequestButton } from "@/components/bids/delete-request-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -114,14 +115,14 @@ export default async function SourcingDetail({
       quoteUrl,
       notes,
     });
-    redirect("/bids?success=true");
+    redirect("/sourcing?success=true");
   }
 
   return (
     <div className="container mx-auto py-12 px-6 lg:px-10">
       <div className="mb-12 space-y-6">
         <Link
-          href="/bids"
+          href="/sourcing"
           className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -172,6 +173,12 @@ export default async function SourcingDetail({
               >
                 Status: {request.status}
               </Badge>
+              {session?.user?.id === request.userId && (
+                <DeleteSourcingRequestButton
+                  requestId={request.id}
+                  category={request.category}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -365,7 +372,7 @@ export default async function SourcingDetail({
                     You must be logged in as a registered supplier to submit a
                     quotation for this request.
                   </p>
-                  <Link href={`/sign-in?callbackUrl=/bids/${requestId}`}>
+                  <Link href={`/sign-in?callbackUrl=/sourcing/${requestId}`}>
                     <Button className="rounded-xl font-bold px-8">
                       Sign In to Continue
                     </Button>
@@ -527,7 +534,7 @@ export default async function SourcingDetail({
                       {existingBid ? "Update Response" : "Submit Response"}
                       <CheckCircle2 className="ml-2 h-4 w-4" />
                     </Button>
-                    <Link href="/bids" className="flex-1">
+                    <Link href="/sourcing" className="flex-1">
                       <Button
                         variant="outline"
                         type="button"

@@ -4,7 +4,15 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { db } from "@/db/client";
-import { inquiries, inquiryMessages, materials, orders, users, categories, subCategories } from "@/db/new-schema";
+import {
+  categories,
+  inquiries,
+  inquiryMessages,
+  materials,
+  orders,
+  subCategories,
+  users,
+} from "@/db/new-schema";
 import { auth } from "@/lib/auth";
 
 export async function getSessionEmail() {
@@ -43,6 +51,7 @@ export async function createMaterialAction(input: {
   leadTimeEstimate?: string;
   embodiedCarbonFactorPerUnit: number;
   imageUrl?: string;
+  images?: string[];
   certificationOrSourceNote?: string;
 }) {
   const email = await getSessionEmail();
@@ -82,12 +91,14 @@ export async function createMaterialAction(input: {
     supplierName: input.supplierName,
     supplierEmail: input.supplierEmail || email, // Default to creator's email if not provided
     origin: input.countryOfOrigin,
+    unit: input.unit,
     unitPriceRange: `${input.unitPriceMin.toFixed(2)}-${input.unitPriceMax.toFixed(2)}`,
     leadTimeEstimate: input.leadTimeEstimate || "Unknown",
     embodiedCarbonFactor: Number.isFinite(input.embodiedCarbonFactorPerUnit)
       ? input.embodiedCarbonFactorPerUnit.toFixed(4)
       : "0",
     imageUrl: input.imageUrl,
+    images: input.images || [],
     certification: input.certificationOrSourceNote,
     approved: false, // Admin approval required
   });
@@ -95,8 +106,29 @@ export async function createMaterialAction(input: {
   revalidatePath("/materials");
 }
 
+export async function deleteMaterialAction(id: string) {
+  const email = await getSessionEmail();
+  if (!email) throw new Error("Not authenticated");
+
+  const [material] = await db
+    .select()
+    .from(materials)
+    .where(eq(materials.id, id));
+
+  if (!material) throw new Error("Material not found");
+
+  // Only allow supplier of the material or admin to delete
+  const user = await getDomainUser(email);
+  if (material.supplierEmail !== email && user?.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  await db.delete(materials).where(eq(materials.id, id));
+  revalidatePath("/materials");
+}
+
 export async function listMaterialsAction() {
-  return await db.select().from(materials);
+  return await db.select().from(materials).where(eq(materials.approved, true));
 }
 
 export async function getMaterialCategoriesAction() {
@@ -143,7 +175,19 @@ export async function getCategoriesAction() {
 }
 
 export async function getMaterialsWithInquiryCountsAction() {
+  const email = await getSessionEmail();
+  const user = email ? await getDomainUser(email) : null;
+  const isAdmin = user?.role === "admin";
+  const userEmail = email || "";
+
   const materialsList = await db.query.materials.findMany({
+    where: (materials, { eq, or }) =>
+      isAdmin
+        ? undefined
+        : or(
+          eq(materials.approved, true),
+          eq(materials.supplierEmail, userEmail),
+        ),
     with: {
       category: true,
       subCategory: true,

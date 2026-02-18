@@ -126,12 +126,15 @@ export const materials = pgTable("materials", {
   supplierName: text("supplier_name").notNull(),
   supplierEmail: text("supplier_email"), // Added for reliable joining
   origin: text("origin").notNull(),
+  unit: text("unit").default("unit"),
   unitPriceRange: text("unit_price_range").notNull(),
   leadTimeEstimate: text("lead_time_estimate").notNull(),
   embodiedCarbonFactor: numeric("embodied_carbon_factor").notNull(),
   imageUrl: text("image_url"),
+  images: jsonb("images").default([]),
   certification: text("certification"),
   approved: boolean("approved").default(false),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -167,6 +170,7 @@ export const sourcingRequests = pgTable("sourcing_requests", {
   projectId: uuid("project_id").references(() => projects.id),
   userId: text("user_id").references(() => users.id), // Professional who requested
   category: text("category").notNull(),
+  subCategory: text("sub_category"), // Added for MVP: sub-category
   description: text("description"),
   quantity: numeric("quantity").notNull(),
   unit: text("unit"), // Added for MVP: kg, m3, units, etc.
@@ -182,7 +186,9 @@ export const sourcingRequests = pgTable("sourcing_requests", {
 // Bids (Suppliers responding to sourcing requests)
 export const bids = pgTable("bids", {
   id: uuid("id").primaryKey().defaultRandom(),
-  requestId: uuid("request_id").references(() => sourcingRequests.id),
+  requestId: uuid("request_id")
+    .references(() => sourcingRequests.id, { onDelete: "cascade" })
+    .notNull(),
   supplierId: text("supplier_id").references(() => users.id),
   materialId: uuid("material_id").references(() => materials.id), // If bidding with existing material
   bidUnitPrice: numeric("bid_unit_price").notNull(),
@@ -204,6 +210,25 @@ export const projects = pgTable("projects", {
   floorArea: numeric("floor_area"),
   selectedMaterials: jsonb("selected_materials"), // {cement: materialId, ...}
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Supplier Profiles
+export const supplierProfiles = pgTable("supplier_profiles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .references(() => users.id)
+    .notNull()
+    .unique(), // One profile per user
+  tin: text("tin").notNull(),
+  description: text("description").notNull(),
+  certificationUrl: text("certification_url").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  approvalStatus: text("approval_status").default("pending").notNull(), // pending, approved, rejected
+  rejectionReason: text("rejection_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 // Orders
@@ -252,13 +277,16 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
   materials: many(materials),
 }));
 
-export const subCategoriesRelations = relations(subCategories, ({ one, many }) => ({
-  category: one(categories, {
-    fields: [subCategories.categoryId],
-    references: [categories.id],
+export const subCategoriesRelations = relations(
+  subCategories,
+  ({ one, many }) => ({
+    category: one(categories, {
+      fields: [subCategories.categoryId],
+      references: [categories.id],
+    }),
+    materials: many(materials),
   }),
-  materials: many(materials),
-}));
+);
 
 export const usersRelations = relations(users, ({ many }) => ({
   inquiries: many(inquiries),

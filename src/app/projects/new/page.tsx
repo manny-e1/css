@@ -19,7 +19,7 @@ import { createProjectAction } from "../actions";
 export default async function NewProjectPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
-    redirect("/sign-in");
+    redirect("/auth/sign-in");
   }
 
   async function create(formData: FormData) {
@@ -166,7 +166,7 @@ export default async function NewProjectPage() {
               </Link>
               <Button
                 type="submit"
-                className="flex-[2] h-12 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-primary/20"
+                className="flex-2 h-12 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-primary/20"
               >
                 Create Project
               </Button>

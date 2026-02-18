@@ -1,6 +1,7 @@
 "use client";
 
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import Link from "next/link";
 
 export function HeroSection() {
   const scrollToSection = (id: string) => {
@@ -35,13 +36,12 @@ export function HeroSection() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button
-            type="button"
-            onClick={() => scrollToSection("supplier-signup")}
-            className="px-8 py-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 min-w-[240px] shadow-lg"
+          <Link
+            href="/supplier/register"
+            className="px-8 py-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 min-w-[240px] shadow-lg text-center"
           >
             List materials as a supplier
-          </button>
+          </Link>
           <button
             type="button"
             onClick={() => scrollToSection("partnerships")}

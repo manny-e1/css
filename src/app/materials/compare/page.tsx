@@ -31,7 +31,7 @@ export default async function MaterialsComparePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const params = await searchParams;
   const categoryParam = String(params.category ?? "");

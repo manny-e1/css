@@ -20,6 +20,7 @@ import {
   computeMaterialCarbon,
   computeTransportMultiplier,
 } from "@/lib/carbon";
+import { redirect } from "next/navigation";
 
 // Helper function to map material categories to baseline categories
 function mapToBaselineCategory(
@@ -98,11 +99,28 @@ export async function createProjectAction(input: {
     })
     .returning();
 
-  revalidatePath("/projects");
+  revalidatePath("/buyer/projects");
   return project;
 }
 
-// Read projects (scoped to logged-in user)
+// Delete project
+export async function deleteProjectAction(projectId: string) {
+  const user = await _getSession();
+  if (!user) throw new Error("Not authenticated");
+
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId));
+
+  if (!project) throw new Error("Project not found");
+  if (project.userId !== user.user.id) throw new Error("Unauthorized");
+
+  await db.delete(projects).where(eq(projects.id, projectId));
+  revalidatePath("/projects");
+  redirect("/projects");
+}
+
 export async function listProjectsAction() {
   const user = await requirePermission("project:read");
   // await ensureDomainUser(email, session.user.name ?? undefined);
@@ -526,7 +544,9 @@ export async function createOrderAction(input: {
 
   // In a real system, we would send an email to material.supplierEmail here
   if (material.supplierEmail) {
-    console.log(`[Email Sent] To: ${material.supplierEmail} about order ${order.id}`);
+    console.log(
+      `[Email Sent] To: ${material.supplierEmail} about order ${order.id}`,
+    );
 
     // Create notification for supplier if they exist in our system
     const [supplierUser] = await db
@@ -566,15 +586,16 @@ export async function createBulkOrdersAction(input: {
 }) {
   const user = await requirePermission("project:update");
 
-  if (input.items.length === 0) throw new Error("No items provided for bulk order");
+  if (input.items.length === 0)
+    throw new Error("No items provided for bulk order");
 
-  const materialIds = input.items.map(item => item.materialId);
+  const materialIds = input.items.map((item) => item.materialId);
   const materialRows = await db
     .select()
     .from(materials)
     .where(inArray(materials.id, materialIds));
 
-  const materialMap = new Map(materialRows.map(m => [m.id, m]));
+  const materialMap = new Map(materialRows.map((m) => [m.id, m]));
 
   const createdOrders = [];
 
@@ -601,7 +622,9 @@ export async function createBulkOrdersAction(input: {
     );
 
     if (material.supplierEmail) {
-      console.log(`[Email Sent] To: ${material.supplierEmail} about order ${order.id}`);
+      console.log(
+        `[Email Sent] To: ${material.supplierEmail} about order ${order.id}`,
+      );
 
       // Create notification for supplier if they exist in our system
       const [supplierUser] = await db

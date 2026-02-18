@@ -25,12 +25,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { useShortlist } from "@/context/shortlist-context";
+import { authClient } from "@/lib/auth-client";
 import { calculateCarbonScore } from "@/lib/carbon";
 import { cn } from "@/lib/utils";
-
-import { authClient } from "@/lib/auth-client";
-import { UpgradePrompt } from "@/components/upgrade-prompt";
 
 export default function ShortlistPage() {
   const { shortlist, removeFromShortlist, clearShortlist } = useShortlist();
@@ -55,14 +54,18 @@ export default function ShortlistPage() {
       });
 
       if (result && result.length > 0) {
-        toast.success(`Successfully placed orders for all ${shortlist.length} materials!`);
+        toast.success(
+          `Successfully placed orders for all ${shortlist.length} materials!`,
+        );
         clearShortlist();
       } else {
         toast.error("Failed to place orders. No orders were created.");
       }
     } catch (error: any) {
       console.error("Failed to place bulk order:", error);
-      toast.error(error.message || "Failed to place bulk order. Please try again.");
+      toast.error(
+        error.message || "Failed to place bulk order. Please try again.",
+      );
     } finally {
       setIsBulkOrdering(false);
     }

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { authUser } from "@/db/auth-schema";
 import { db } from "@/db/client";
 
-import { type Role } from "@/lib/roles";
+import type { Role } from "@/lib/roles";
 
 export async function updateUserRole(userId: string, newRole: Role) {
   try {

@@ -234,8 +234,8 @@ export function BuyerInquiriesClient({
                     <div className="text-base font-bold text-foreground flex items-center gap-2 tracking-tight">
                       {selectedInquiry.desiredDeliveryDate
                         ? new Date(
-                          selectedInquiry.desiredDeliveryDate,
-                        ).toLocaleDateString()
+                            selectedInquiry.desiredDeliveryDate,
+                          ).toLocaleDateString()
                         : "Not specified"}
                     </div>
                   </div>
@@ -258,7 +258,8 @@ export function BuyerInquiriesClient({
                   Select an inquiry
                 </h3>
                 <p className="text-muted-foreground mt-2 text-sm max-w-[300px] text-center leading-relaxed">
-                  Choose a conversation from the list to view details and history.
+                  Choose a conversation from the list to view details and
+                  history.
                 </p>
               </Card>
             )}

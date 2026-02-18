@@ -2,7 +2,6 @@ import {
   ArrowRight,
   Calendar,
   DollarSign,
-  LayoutDashboard,
   Leaf,
   MapPin,
   Plus,
@@ -189,8 +188,10 @@ export default async function ProjectsPage() {
                 <CardHeader className="p-6 pb-4">
                   <div className="flex justify-between items-start gap-4 mb-4">
                     {getStatusBadge(project.projectType || "planning")}
-                    <div className="h-8 w-8 rounded-lg bg-muted/30 flex items-center justify-center group-hover/card:bg-primary/10 group-hover/card:text-primary transition-all">
-                      <ArrowRight className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-muted/30 flex items-center justify-center group-hover/card:bg-primary/10 group-hover/card:text-primary transition-all">
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
                     </div>
                   </div>
                   <CardTitle className="text-xl font-bold tracking-tight group-hover/card:text-primary transition-colors line-clamp-1 mb-2">
@@ -233,9 +234,7 @@ export default async function ProjectsPage() {
                         <span className="text-primary">35%</span>
                       </div>
                       <div className="h-1.5 w-full bg-muted/40 rounded-full overflow-hidden">
-                        <div
-                          className="h-full w-[35%] bg-primary"
-                        />
+                        <div className="h-full w-[35%] bg-primary" />
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground/40 uppercase tracking-wider">

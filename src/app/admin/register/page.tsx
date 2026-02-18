@@ -12,7 +12,7 @@ import { auth } from "@/lib/auth";
 
 export default async function AdminRegisterPage() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   // Since new-schema doesn't have role field, we'll skip admin check for now
   const alreadyAdmin = false;

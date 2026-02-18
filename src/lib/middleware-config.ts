@@ -106,7 +106,7 @@ export const ROUTE_CONFIGS: Record<string, ProtectedRouteConfig> = {
     redirectTo: "/unauthorized",
   },
 
-  "/bids": {
+  "/sourcing": {
     permissions: ["sourcing:read"],
     redirectTo: "/unauthorized",
   },

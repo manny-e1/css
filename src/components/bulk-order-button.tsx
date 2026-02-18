@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { createBulkOrdersAction } from "@/app/projects/actions";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,13 @@ interface BulkOrderButtonProps {
     materialName: string;
   }[];
   className?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
@@ -51,7 +57,9 @@ export function BulkOrderButton({
       }
     } catch (error: any) {
       console.error("Failed to place bulk order:", error);
-      toast.error(error.message || "Failed to place bulk order. Please try again.");
+      toast.error(
+        error.message || "Failed to place bulk order. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +73,7 @@ export function BulkOrderButton({
       disabled={loading || items.length === 0}
       className={cn(
         "font-bold uppercase tracking-wider gap-2 transition-all shadow-sm",
-        className
+        className,
       )}
     >
       {loading ? (

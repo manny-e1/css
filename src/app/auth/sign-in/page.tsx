@@ -9,6 +9,18 @@ export default async function SignInPage() {
   });
 
   if (session) {
+    if (session.user.banned) {
+      // If user is banned but session exists, sign them out and show error
+      // Since we are server-side, we can't easily alert.
+      // But we can redirect to sign-in with error query param?
+      // Or just render the sign-in client with a specific prop?
+      // Let's just return SignInClient. The client side will likely fail to fetch session or handle it.
+      // Actually, if we are here, we are authenticated.
+      // We should probably redirect to a "banned" page or just render SignInClient and let the user try again (which will fail).
+      // But auto-redirecting to dashboard is bad.
+      return <SignInClient />;
+    }
+
     // Redirect based on role
     const userRole = session.user.role;
     switch (userRole) {
@@ -16,7 +28,7 @@ export default async function SignInPage() {
         redirect("/admin/users");
         break;
       case "professional":
-        redirect("/materials");
+        redirect("/projects");
         break;
       case "supplier":
         redirect("/supplier/dashboard");

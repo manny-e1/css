@@ -28,11 +28,12 @@ import {
   listProjectSourcingRequestsAction,
   listRequestBidsAction,
 } from "@/app/bids/actions";
+import { AddMaterialDialog } from "@/components/add-material-dialog";
+import { BulkOrderButton } from "@/components/bulk-order-button";
+import { MaterialAlternativesDialog } from "@/components/material-alternatives-dialog";
+import { DeleteProjectButton } from "@/components/projects/delete-project-button";
 import { RemoveMaterialButton } from "@/components/remove-material-button";
 import { SourcingBidsDialog } from "@/components/sourcing-bids-dialog";
-import { AddMaterialDialog } from "@/components/add-material-dialog";
-import { MaterialAlternativesDialog } from "@/components/material-alternatives-dialog";
-import { BulkOrderButton } from "@/components/bulk-order-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +52,7 @@ export default async function ProjectPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const user = session.user;
   const isPro = user?.role === "professional" || user?.role === "admin";
@@ -128,6 +129,10 @@ export default async function ProjectPage({
               Project Report
             </Button>
           </Link>
+          <DeleteProjectButton
+            projectId={projectId}
+            projectName={summary.project.name}
+          />
           <AddMaterialDialog projectId={projectId} />
         </div>
       </div>
@@ -391,7 +396,7 @@ export default async function ProjectPage({
                     <p className="text-sm text-muted-foreground mb-8">
                       No active sourcing requests.
                     </p>
-                    <Link href={`/bids/create?projectId=${projectId}`}>
+                    <Link href={`/sourcing/create?projectId=${projectId}`}>
                       <Button className="h-12 px-6 rounded-xl font-bold bg-primary text-white shadow-sm transition-all">
                         <Plus className="h-4 w-4 mr-2" />
                         New Request
@@ -430,7 +435,7 @@ export default async function ProjectPage({
                   ))
                 )}
                 <Link
-                  href={`/bids/create?projectId=${projectId}`}
+                  href={`/sourcing/create?projectId=${projectId}`}
                   className="block"
                 >
                   <Button
@@ -590,7 +595,7 @@ export default async function ProjectPage({
                                     </Button>
                                   </Link>
                                   <Link
-                                    href={`/bids/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
+                                    href={`/sourcing/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
                                   >
                                     <Button
                                       variant="outline"
@@ -844,7 +849,7 @@ export default async function ProjectPage({
                     <ClipboardList className="h-4 w-4" />
                     Active Sourcing Requests
                   </h3>
-                  <Link href={`/bids/create?projectId=${projectId}`}>
+                  <Link href={`/sourcing/create?projectId=${projectId}`}>
                     <Button
                       variant="outline"
                       className="h-10 px-4 rounded-xl text-[10px] font-bold uppercase tracking-wider text-primary border-border/50 hover:bg-primary/5 transition-all"
@@ -864,7 +869,7 @@ export default async function ProjectPage({
                       <p className="text-xs font-medium text-muted-foreground/60 mb-8">
                         No active sourcing requests for this project.
                       </p>
-                      <Link href={`/bids/create?projectId=${projectId}`}>
+                      <Link href={`/sourcing/create?projectId=${projectId}`}>
                         <Button className="h-12 px-8 rounded-xl font-bold bg-primary text-white shadow-sm transition-all uppercase tracking-wider text-xs">
                           <Plus className="h-4 w-4 mr-2" />
                           Start Sourcing
@@ -1141,7 +1146,7 @@ export default async function ProjectPage({
                       explorer?
                     </p>
                   </div>
-                  <Link href={`/bids/create?projectId=${projectId}`}>
+                  <Link href={`/sourcing/create?projectId=${projectId}`}>
                     <Button className="w-full h-12 bg-white text-primary rounded-xl font-bold uppercase tracking-wider text-[10px] hover:bg-white/90 transition-all">
                       Create Open Request
                     </Button>

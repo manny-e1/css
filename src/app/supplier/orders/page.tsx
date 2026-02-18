@@ -13,12 +13,12 @@ import {
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { listSupplierOrdersAction } from "@/app/materials/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { listSupplierOrdersAction } from "@/app/materials/actions";
 
 export default async function SupplierOrdersPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -80,7 +80,10 @@ export default async function SupplierOrdersPage() {
         </div>
         <div className="flex gap-4">
           <Link href="/supplier/dashboard">
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-bold">
+            <Button
+              variant="outline"
+              className="h-12 px-6 rounded-xl font-bold"
+            >
               <LayoutDashboard className="h-5 w-5 mr-2" />
               Console
             </Button>
@@ -109,7 +112,10 @@ export default async function SupplierOrdersPage() {
       ) : (
         <div className="grid gap-6">
           {orders.map((order) => (
-            <Card key={order.id} className="overflow-hidden border-2 hover:border-primary/20 transition-all">
+            <Card
+              key={order.id}
+              className="overflow-hidden border-2 hover:border-primary/20 transition-all"
+            >
               <div className="flex flex-col md:flex-row">
                 <div className="flex-1 p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
@@ -122,7 +128,8 @@ export default async function SupplierOrdersPage() {
                       </div>
                       <p className="text-muted-foreground text-sm flex items-center">
                         <User className="h-3.5 w-3.5 mr-1.5" />
-                        Buyer: {order.buyer?.name || "Unknown"} ({order.buyer?.email})
+                        Buyer: {order.buyer?.name || "Unknown"} (
+                        {order.buyer?.email})
                       </p>
                     </div>
                     <div className="text-right">
@@ -148,7 +155,9 @@ export default async function SupplierOrdersPage() {
                         Total Price
                       </p>
                       <p className="text-lg font-bold text-primary">
-                        {order.totalPrice ? `$${order.totalPrice}` : "Quote Pending"}
+                        {order.totalPrice
+                          ? `$${order.totalPrice}`
+                          : "Quote Pending"}
                       </p>
                     </div>
                     <div>
@@ -176,7 +185,11 @@ export default async function SupplierOrdersPage() {
                     </div>
                     <div className="flex gap-2">
                       <Link href={`mailto:${order.buyer?.email}`}>
-                        <Button variant="outline" size="sm" className="font-bold">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="font-bold"
+                        >
                           <Mail className="h-4 w-4 mr-2" />
                           Contact Buyer
                         </Button>
@@ -186,7 +199,7 @@ export default async function SupplierOrdersPage() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {order.notes && (
                     <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground italic">
                       " {order.notes} "

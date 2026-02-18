@@ -12,13 +12,16 @@ import {
 } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { getCategoriesAction } from "@/app/materials/actions";
+import { DeleteSourcingRequestButton } from "@/components/bids/delete-request-button";
+import { FilterBar } from "@/components/bids/filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { UpgradePrompt } from "@/components/upgrade-prompt";
 import {
   listAllSourcingRequestsWithBidsAction,
   listMyBidsAction,
@@ -28,26 +31,75 @@ import {
 export default async function SourcingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; location?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    subCategory?: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+    search?: string;
+  }>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
   const params = await searchParams;
 
   const allRequests = await listAllSourcingRequestsWithBidsAction();
+  const categories = await getCategoriesAction();
 
-  // Filter allRequests based on searchParams if needed
+  // Filter logic
   const filteredRequests = allRequests.filter((req) => {
     const matchCategory =
       !params.category ||
       params.category === "All Categories" ||
       req.category === params.category;
+    const matchSubCategory =
+      !params.subCategory || req.subCategory === params.subCategory;
     const matchLocation =
       !params.location ||
       (req.location?.toLowerCase() || "").includes(
         params.location.toLowerCase(),
       );
-    return matchCategory && matchLocation;
+
+    // Date filter (range)
+    let matchDate = true;
+    if (params.startDate || params.endDate) {
+      const reqDate = req.createdAt
+        ? new Date(req.createdAt).toISOString().split("T")[0]
+        : "";
+
+      if (params.startDate && reqDate < params.startDate) {
+        matchDate = false;
+      }
+      if (params.endDate && reqDate > params.endDate) {
+        matchDate = false;
+      }
+    }
+
+    // Search filter (multi-field)
+    let matchSearch = true;
+    if (params.search) {
+      const query = params.search.toLowerCase();
+      matchSearch =
+        (req.category?.toLowerCase() || "").includes(query) ||
+        (req.subCategory?.toLowerCase() || "").includes(query) ||
+        (req.location?.toLowerCase() || "").includes(query) ||
+        (String(req.quantity) || "").includes(query) ||
+        (req.unit?.toLowerCase() || "").includes(query);
+    }
+
+    return (
+      matchCategory &&
+      matchSubCategory &&
+      matchLocation &&
+      matchDate &&
+      matchSearch
+    );
   });
+
+  // Default sort: Newest first
+  filteredRequests.sort(
+    (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0),
+  );
 
   const user = session?.user;
   const isBuyer = user?.role === "buyer";
@@ -60,18 +112,19 @@ export default async function SourcingPage({
 
   return (
     <div className="container mx-auto py-12 px-6 lg:px-10 max-w-7xl">
+      {/* ... header ... */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
         <div>
-          <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-4">
+          {/* <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-4">
             <Building2 className="h-4 w-4" />
             Supply Chain Hub
-          </div>
+          </div> */}
           <h1 className="text-4xl font-black tracking-tight text-foreground mb-4">
-            Sourcing <span className="text-primary">Center</span>
+            Bidding <span className="text-primary">Center</span>
           </h1>
           <p className="text-muted-foreground font-medium max-w-2xl leading-relaxed">
-            Browse active material requests, track your bids, and explore market
-            activity across the construction network.
+            Discover active material and service requests from buyers. Submit
+            competitive offers and win projects.
           </p>
         </div>
         {!isSupplier &&
@@ -79,12 +132,14 @@ export default async function SourcingPage({
             <div className="flex gap-4">
               <Link
                 href={
-                  session ? "/bids/create" : "/sign-in?callbackUrl=/bids/create"
+                  session
+                    ? "/sourcing/create"
+                    : "/auth/sign-in?callbackUrl=/sourcing/create"
                 }
               >
                 <Button className="gap-2 h-12 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
                   <Plus className="h-4 w-4" />
-                  New Request
+                  New Bid
                 </Button>
               </Link>
             </div>
@@ -95,7 +150,7 @@ export default async function SourcingPage({
                 trigger={
                   <Button className="gap-2 h-12 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
                     <Plus className="h-4 w-4" />
-                    New Request
+                    New Bid
                   </Button>
                 }
               />
@@ -145,42 +200,7 @@ export default async function SourcingPage({
         </div>
 
         <TabsContent value="explore" className="mt-0">
-          <div className="flex gap-2 overflow-x-auto pb-6 mb-8 scrollbar-hide">
-            {[
-              "All Categories",
-              "Concrete",
-              "Steel",
-              "Timber",
-              "Glass",
-              "Electrical",
-            ].map((cat) => (
-              <Link
-                key={cat}
-                href={`/bids?${new URLSearchParams({
-                  ...params,
-                  category: cat,
-                }).toString()}`}
-              >
-                <Button
-                  variant={
-                    params.category === cat ||
-                    (!params.category && cat === "All Categories")
-                      ? "default"
-                      : "outline"
-                  }
-                  className={cn(
-                    "h-10 px-6 whitespace-nowrap rounded-xl font-bold transition-colors text-[10px] uppercase tracking-widest",
-                    params.category === cat ||
-                      (!params.category && cat === "All Categories")
-                      ? "shadow-lg shadow-primary/20"
-                      : "border-border/50 hover:bg-muted",
-                  )}
-                >
-                  {cat}
-                </Button>
-              </Link>
-            ))}
-          </div>
+          <FilterBar categories={categories} />
 
           <div className="grid gap-12">
             {filteredRequests.length === 0 ? (
@@ -219,6 +239,12 @@ export default async function SourcingPage({
                     <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 ml-auto">
                       <Clock className="h-3 w-3" />
                       Posted {req.createdAt?.toLocaleDateString()}
+                      {user && user.id === req.userId && (
+                        <DeleteSourcingRequestButton
+                          requestId={req.id}
+                          category={req.category}
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -270,7 +296,10 @@ export default async function SourcingPage({
                           </p>
                         </div>
 
-                        <Link href={`/bids/${req.id}`} className="block mt-10">
+                        <Link
+                          href={`/sourcing/${req.id}`}
+                          className="block mt-10"
+                        >
                           <Button
                             variant="outline"
                             className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 border-border/50"
@@ -388,7 +417,7 @@ export default async function SourcingPage({
                     <p className="text-muted-foreground mt-2 text-sm max-w-xs mx-auto">
                       You haven&apos;t created any sourcing requests yet.
                     </p>
-                    <Link href="/bids/create" className="mt-8">
+                    <Link href="/sourcing/create" className="mt-8">
                       <Button className="rounded-xl font-black uppercase tracking-widest text-[10px]">
                         Create Your First Request
                       </Button>
@@ -436,7 +465,7 @@ export default async function SourcingPage({
                           {req.location || "N/A"}
                         </span>
                       </div>
-                      <Link href={`/bids/${req.id}`}>
+                      <Link href={`/sourcing/${req.id}`}>
                         <Button
                           variant="ghost"
                           className="h-8 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-primary/5 text-primary"
@@ -466,7 +495,7 @@ export default async function SourcingPage({
                     You haven&apos;t submitted any bids for sourcing requests
                     yet.
                   </p>
-                  <Link href="/bids" className="mt-8">
+                  <Link href="/sourcing" className="mt-8">
                     <Button className="rounded-xl font-black uppercase tracking-widest text-[10px]">
                       Browse Requests
                     </Button>
@@ -531,7 +560,7 @@ export default async function SourcingPage({
                           </span>
                         </p>
                       </div>
-                      <Link href={`/bids/${bid.requestId}`}>
+                      <Link href={`/sourcing/${bid.requestId}`}>
                         <Button
                           variant="outline"
                           className="h-12 rounded-xl px-6 font-black uppercase tracking-widest text-[10px] gap-2"

@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getMaterialByIdAction } from "@/app/materials/actions";
+import { ImageGallery } from "@/components/image-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,10 +21,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { auth } from "@/lib/auth";
 import { calculateCarbonScore } from "@/lib/carbon";
 import { cn } from "@/lib/utils";
-import { UpgradePrompt } from "@/components/upgrade-prompt";
 
 type Params = { id: string };
 type SearchParams = { projectId?: string };
@@ -36,7 +37,7 @@ export default async function MaterialDetailPage({
   searchParams: Promise<SearchParams>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const user = session.user;
   const isPro = user?.role === "professional" || user?.role === "admin";
@@ -50,8 +51,16 @@ export default async function MaterialDetailPage({
     redirect("/materials");
   }
 
-  // Cast to avoid linter errors since we know the shape
   const material = materialResult as any;
+
+  // Authorization check for unapproved materials
+  if (
+    !material.approved &&
+    user.role !== "admin" &&
+    material.supplierEmail !== user.email
+  ) {
+    redirect("/materials");
+  }
 
   const { score, grade, color } = calculateCarbonScore(
     Number(material.embodiedCarbonFactor),
@@ -94,9 +103,13 @@ export default async function MaterialDetailPage({
               >
                 Grade {grade} • {score}
               </Badge>
-              {material.approved && (
+              {material.approved ? (
                 <Badge className="bg-blue-50 text-blue-700 border-none px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider">
                   Verified
+                </Badge>
+              ) : (
+                <Badge className="bg-amber-50 text-amber-700 border-none px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  Pending Approval
                 </Badge>
               )}
             </div>
@@ -137,6 +150,15 @@ export default async function MaterialDetailPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2">
+              <ImageGallery
+                images={
+                  material.images ||
+                  (material.imageUrl ? [material.imageUrl] : [])
+                }
+              />
+            </div>
+
             {/* Price & Lead Time Block */}
             <Card className="border-border/40 shadow-sm rounded-xl overflow-hidden bg-background group/card transition-all">
               <CardHeader className="pb-6 border-b border-border/40 bg-muted/2">
@@ -322,7 +344,7 @@ export default async function MaterialDetailPage({
                 </p>
                 {isPro ? (
                   <Link
-                    href={`/bids/create${projectId ? `?projectId=${projectId}` : ""}`}
+                    href={`/sourcing/create${projectId ? `?projectId=${projectId}` : ""}`}
                     className="block"
                   >
                     <Button

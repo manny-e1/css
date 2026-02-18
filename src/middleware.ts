@@ -5,6 +5,15 @@ import { ROUTE_CONFIGS, roleMiddleware } from "@/lib/middleware-config";
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Public routes that should not be protected
+  if (
+    pathname.startsWith("/supplier/register") ||
+    pathname.startsWith("/auth/verify-email") ||
+    pathname.startsWith("/auth/email-verified")
+  ) {
+    return NextResponse.next();
+  }
+
   // Check if the path matches any protected route patterns
   for (const [routePattern, config] of Object.entries(ROUTE_CONFIGS)) {
     if (pathname.startsWith(routePattern)) {

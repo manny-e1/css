@@ -223,8 +223,8 @@ export function SupplierInquiriesClient({
                       <Clock className="h-4.5 w-4.5 text-primary" />
                       {selectedInquiry.desiredDeliveryDate
                         ? new Date(
-                          selectedInquiry.desiredDeliveryDate,
-                        ).toLocaleDateString()
+                            selectedInquiry.desiredDeliveryDate,
+                          ).toLocaleDateString()
                         : "Not specified"}
                     </div>
                   </div>

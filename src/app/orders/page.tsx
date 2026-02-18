@@ -78,7 +78,10 @@ export default async function OrdersPage() {
         </div>
         <div className="flex gap-4">
           <Link href="/dashboard">
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-bold">
+            <Button
+              variant="outline"
+              className="h-12 px-6 rounded-xl font-bold"
+            >
               <LayoutDashboard className="h-5 w-5 mr-2" />
               Dashboard
             </Button>
@@ -113,7 +116,10 @@ export default async function OrdersPage() {
       ) : (
         <div className="grid gap-6">
           {orders.map((order) => (
-            <Card key={order.id} className="overflow-hidden border-2 hover:border-primary/20 transition-all">
+            <Card
+              key={order.id}
+              className="overflow-hidden border-2 hover:border-primary/20 transition-all"
+            >
               <div className="flex flex-col md:flex-row">
                 {/* Material Image / Icon */}
                 <div className="w-full md:w-48 bg-muted/30 flex items-center justify-center border-b md:border-b-0 md:border-r">
@@ -167,7 +173,9 @@ export default async function OrdersPage() {
                         Total Price
                       </p>
                       <p className="text-lg font-bold text-primary">
-                        {order.totalPrice ? `$${order.totalPrice}` : "Quote Pending"}
+                        {order.totalPrice
+                          ? `$${order.totalPrice}`
+                          : "Quote Pending"}
                       </p>
                     </div>
                     <div>
@@ -201,7 +209,11 @@ export default async function OrdersPage() {
                       </Link>
                       {order.project && (
                         <Link href={`/projects/${order.project.id}`}>
-                          <Button variant="outline" size="sm" className="font-bold">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="font-bold"
+                          >
                             Go to Project
                           </Button>
                         </Link>

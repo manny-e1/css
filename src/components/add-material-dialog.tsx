@@ -1,7 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, Plus, Package, Building2, Leaf, Globe, Check } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Globe,
+  Leaf,
+  Package,
+  Plus,
+  Search,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { listMaterialsAction } from "@/app/materials/actions";
+import { addMaterialToProjectAction } from "@/app/projects/actions";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +23,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { listMaterialsAction } from "@/app/materials/actions";
-import { addMaterialToProjectAction } from "@/app/projects/actions";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface Material {
   id: string;
@@ -40,7 +48,9 @@ export function AddMaterialDialog({
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(
+    null,
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [adding, setAdding] = useState(false);
 
@@ -67,7 +77,7 @@ export function AddMaterialDialog({
     (m) =>
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.category.toLowerCase().includes(search.toLowerCase()) ||
-      m.supplierName.toLowerCase().includes(search.toLowerCase())
+      m.supplierName.toLowerCase().includes(search.toLowerCase()),
   );
 
   async function handleAdd() {
@@ -141,7 +151,8 @@ export function AddMaterialDialog({
               </div>
               <h3 className="text-lg font-bold mb-1">No materials found</h3>
               <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                Try adjusting your search or category filters to find what you're looking for.
+                Try adjusting your search or category filters to find what
+                you're looking for.
               </p>
             </div>
           ) : (
@@ -153,7 +164,7 @@ export function AddMaterialDialog({
                     "group cursor-pointer border-border/40 hover:border-primary/40 transition-all rounded-2xl overflow-hidden",
                     selectedMaterialId === material.id
                       ? "ring-2 ring-primary ring-offset-2 border-primary/40 bg-primary/[0.02]"
-                      : "bg-background"
+                      : "bg-background",
                   )}
                   onClick={() => setSelectedMaterialId(material.id)}
                 >

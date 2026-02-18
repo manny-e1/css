@@ -15,11 +15,23 @@ export default function SignInClient() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await authClient.signIn.email({
+      const { data, error } = await authClient.signIn.email({
         email,
         password,
       });
-      router.push("/materials");
+
+      if (error) {
+        if (error.message?.includes("banned")) {
+          alert(
+            "Your account is pending admin approval or has been suspended.",
+          );
+        } else {
+          alert(error.message || "Sign-in failed");
+        }
+        return;
+      }
+
+      router.push("/projects");
     } catch (e) {
       console.error(e);
       alert("Sign-in failed");
@@ -51,12 +63,20 @@ export default function SignInClient() {
         </div>
         <Button type="submit">Sign In</Button>
       </form>
-      <p className="mt-4 text-sm">
+      <p className="mt-4 text-sm text-center">
         No account?{" "}
-        <a className="underline" href="/auth/sign-up">
+        <a className="underline hover:text-primary" href="/auth/sign-up">
           Sign up
         </a>
       </p>
+      <div className="mt-4 pt-4 border-t text-center">
+        <p className="text-sm text-muted-foreground mb-2">
+          Want to sell materials?
+        </p>
+        <Button variant="outline" className="w-full" asChild>
+          <a href="/supplier/register">Register as Supplier</a>
+        </Button>
+      </div>
     </div>
   );
 }

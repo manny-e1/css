@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import {
+  createMaterialAction,
+  getCategoriesAction,
+} from "@/app/materials/actions";
+import { ImageUpload } from "@/components/image-upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,10 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import { authClient } from "@/lib/auth-client";
-import { createMaterialAction, getCategoriesAction } from "@/app/materials/actions";
-import { toast } from "sonner";
 
 export default function CreateMaterial() {
   const router = useRouter();
@@ -35,6 +38,7 @@ export default function CreateMaterial() {
     manufacturer: "",
     origin: "",
     imageUrl: "",
+    images: [] as string[],
     certifications: "",
     specifications: "",
   });
@@ -69,7 +73,8 @@ export default function CreateMaterial() {
     setLoading(true);
 
     try {
-      const categoryName = categories.find(c => c.id === formData.categoryId)?.name || "Other";
+      const categoryName =
+        categories.find((c) => c.id === formData.categoryId)?.name || "Other";
 
       await createMaterialAction({
         name: formData.name,
@@ -83,7 +88,8 @@ export default function CreateMaterial() {
         unitPriceMax: parseFloat(formData.price) || 0,
         leadTimeEstimate: "2-4 weeks", // Default or add field
         embodiedCarbonFactorPerUnit: parseFloat(formData.carbonFactor) || 0,
-        imageUrl: formData.imageUrl,
+        images: formData.images,
+        imageUrl: formData.images[0] || "", // Use first image as main imageUrl for backward compatibility
         certificationOrSourceNote: formData.certifications,
       });
 
@@ -157,12 +163,20 @@ export default function CreateMaterial() {
                 <Label htmlFor="subcategory">Subcategory *</Label>
                 <Select
                   value={formData.subCategoryId}
-                  onValueChange={(value) => handleInputChange("subCategoryId", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("subCategoryId", value)
+                  }
                   required
                   disabled={!formData.categoryId}
                 >
                   <SelectTrigger id="subcategory">
-                    <SelectValue placeholder={formData.categoryId ? "Select subcategory" : "Select category first"} />
+                    <SelectValue
+                      placeholder={
+                        formData.categoryId
+                          ? "Select subcategory"
+                          : "Select category first"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {subCategories.map((sub: any) => (
@@ -253,16 +267,22 @@ export default function CreateMaterial() {
             </div>
 
             <div>
-              <Label htmlFor="imageUrl">Material Image URL</Label>
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => handleInputChange("imageUrl", e.target.value)}
-                placeholder="https://images.unsplash.com/..."
+              <Label>Material Images</Label>
+              <ImageUpload
+                value={formData.images}
+                onChange={(urls) => {
+                  // If urls is just one new url, we should append it, but ImageUpload passes the full new array
+                  setFormData((prev) => ({ ...prev, images: urls }));
+                }}
+                onRemove={(url) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    images: prev.images.filter((i) => i !== url),
+                  }))
+                }
               />
               <p className="text-[10px] text-muted-foreground mt-1">
-                Provide a URL for the material image. Unsplash or similar URLs
-                work best.
+                Upload one or more images of the material.
               </p>
             </div>
 

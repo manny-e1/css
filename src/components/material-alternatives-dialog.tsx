@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import {
+  ArrowRight,
+  Building2,
+  Clock,
+  DollarSign,
+  Globe,
+  Leaf,
+  RefreshCcw,
+  Sparkles,
   TrendingDown,
   TrendingUp,
-  Leaf,
-  DollarSign,
-  ArrowRight,
-  RefreshCcw,
-  Building2,
-  Globe,
-  Clock,
-  Sparkles,
 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { replaceMaterialAction } from "@/app/projects/actions";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -20,12 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { replaceMaterialAction } from "@/app/projects/actions";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface Alternative {
   materialId: string;
@@ -109,7 +109,8 @@ export function MaterialAlternativesDialog({
             Suggested <span className="text-primary">Alternatives</span>
           </DialogTitle>
           <p className="text-sm text-muted-foreground font-medium mt-2">
-            Optimizing for <span className="font-bold text-foreground">{item.name}</span>
+            Optimizing for{" "}
+            <span className="font-bold text-foreground">{item.name}</span>
           </p>
         </DialogHeader>
 
@@ -165,14 +166,23 @@ export function MaterialAlternativesDialog({
                                   Carbon Impact
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <div className={cn(
-                                    "h-6 w-6 rounded-lg flex items-center justify-center",
-                                    carbonSaved > 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                                  )}>
-                                    {carbonSaved > 0 ? <TrendingDown className="h-3.5 w-3.5" /> : <TrendingUp className="h-3.5 w-3.5" />}
+                                  <div
+                                    className={cn(
+                                      "h-6 w-6 rounded-lg flex items-center justify-center",
+                                      carbonSaved > 0
+                                        ? "bg-emerald-50 text-emerald-600"
+                                        : "bg-rose-50 text-rose-600",
+                                    )}
+                                  >
+                                    {carbonSaved > 0 ? (
+                                      <TrendingDown className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <TrendingUp className="h-3.5 w-3.5" />
+                                    )}
                                   </div>
                                   <div className="text-sm font-bold">
-                                    {Math.abs(carbonSavedPct).toFixed(1)}% {carbonSaved > 0 ? "Reduction" : "Increase"}
+                                    {Math.abs(carbonSavedPct).toFixed(1)}%{" "}
+                                    {carbonSaved > 0 ? "Reduction" : "Increase"}
                                   </div>
                                 </div>
                               </div>
@@ -181,14 +191,23 @@ export function MaterialAlternativesDialog({
                                   Cost Delta
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <div className={cn(
-                                    "h-6 w-6 rounded-lg flex items-center justify-center",
-                                    costDiff < 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                                  )}>
-                                    {costDiff < 0 ? <TrendingDown className="h-3.5 w-3.5" /> : <TrendingUp className="h-3.5 w-3.5" />}
+                                  <div
+                                    className={cn(
+                                      "h-6 w-6 rounded-lg flex items-center justify-center",
+                                      costDiff < 0
+                                        ? "bg-emerald-50 text-emerald-600"
+                                        : "bg-rose-50 text-rose-600",
+                                    )}
+                                  >
+                                    {costDiff < 0 ? (
+                                      <TrendingDown className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <TrendingUp className="h-3.5 w-3.5" />
+                                    )}
                                   </div>
                                   <div className="text-sm font-bold">
-                                    {Math.abs(costDiffPct).toFixed(1)}% {costDiff < 0 ? "Cheaper" : "Premium"}
+                                    {Math.abs(costDiffPct).toFixed(1)}%{" "}
+                                    {costDiff < 0 ? "Cheaper" : "Premium"}
                                   </div>
                                 </div>
                               </div>
@@ -237,7 +256,8 @@ export function MaterialAlternativesDialog({
             })}
           </div>
           <p className="text-[10px] font-bold text-muted-foreground/40 text-center uppercase tracking-widest">
-            Switching will automatically update your project BOM and carbon analysis.
+            Switching will automatically update your project BOM and carbon
+            analysis.
           </p>
         </div>
       </DialogContent>

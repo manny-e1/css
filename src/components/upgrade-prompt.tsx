@@ -4,10 +4,8 @@ import { Check, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateUserRole } from "@/app/actions/update-user-role";
-import { authClient } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 interface UpgradePromptProps {
   title?: string;
@@ -59,7 +59,9 @@ export function UpgradePrompt({
     try {
       const result = await updateUserRole(session.user.id, "professional");
       if (result.success) {
-        toast.success("Welcome to Professional! Your account has been upgraded.");
+        toast.success(
+          "Welcome to Professional! Your account has been upgraded.",
+        );
         setIsOpen(false);
         // Refresh the page to update all UI states and permissions
         window.location.reload();
@@ -106,10 +108,14 @@ export function UpgradePrompt({
                   <div className="mt-1 h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                     <Check className="h-3 w-3 text-primary" />
                   </div>
-                  <span className={cn(
-                    "text-sm font-bold transition-colors",
-                    feature === feat ? "text-primary" : "text-muted-foreground"
-                  )}>
+                  <span
+                    className={cn(
+                      "text-sm font-bold transition-colors",
+                      feature === feat
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {feat}
                   </span>
                 </div>

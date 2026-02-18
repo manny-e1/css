@@ -15,7 +15,7 @@ import {
 
 export default async function AdminRangeAdjustmentPage() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const materials = await listApprovedMaterialsAction();
 

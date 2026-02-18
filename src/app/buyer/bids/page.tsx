@@ -1,6 +1,14 @@
+import {
+  ArrowRight,
+  Calendar,
+  Clock,
+  MapPin,
+  Package,
+  Plus,
+} from "lucide-react";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 import {
   listMySourcingRequestsAction,
   listRequestBidsAction,
@@ -9,19 +17,11 @@ import { SourcingBidsDialog } from "@/components/sourcing-bids-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  MapPin,
-  Package,
-  Calendar,
-  Clock,
-  Plus,
-  ArrowRight,
-} from "lucide-react";
-import Link from "next/link";
+import { auth } from "@/lib/auth";
 
 export default async function BuyerSourcingPage() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/sign-in");
+  if (!session) redirect("/auth/sign-in");
 
   const requests = await listMySourcingRequestsAction();
 
@@ -43,7 +43,7 @@ export default async function BuyerSourcingPage() {
             Track your open market requests and review supplier bids.
           </p>
         </div>
-        <Link href="/bids/create">
+        <Link href="/sourcing/create">
           <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs gap-3 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
             <Plus className="h-4 w-4" />
             New Sourcing Request
@@ -63,7 +63,7 @@ export default async function BuyerSourcingPage() {
                 You haven&apos;t created any open sourcing requests yet. Start
                 by creating one to receive bids from suppliers.
               </p>
-              <Link href="/bids/create">
+              <Link href="/sourcing/create">
                 <Button
                   variant="outline"
                   className="h-12 px-8 rounded-xl font-bold uppercase tracking-wider text-[10px] gap-2"

@@ -18,7 +18,6 @@ import {
   getMaterialByIdAction,
 } from "@/app/materials/actions";
 import { listProjectsAction } from "@/app/projects/actions";
-import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { authClient } from "@/lib/auth-client";
 
 interface Material {
   id: string;

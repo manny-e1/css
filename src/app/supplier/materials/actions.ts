@@ -82,7 +82,9 @@ export async function createMaterialSubmissionAction(input: {
     name: input.name,
     category: input.category,
     supplierName: input.supplierName,
+    supplierEmail: email,
     origin: input.countryOfOrigin,
+    unit: input.unit,
     unitPriceRange: `${input.unitPriceMin.toFixed(2)}-${input.unitPriceMax.toFixed(2)}`,
     leadTimeEstimate: input.leadTimeEstimate || "Unknown",
     embodiedCarbonFactor: Number.isFinite(input.embodiedCarbonFactorPerUnit)
@@ -96,8 +98,22 @@ export async function createMaterialSubmissionAction(input: {
 }
 
 export async function listMyMaterialSubmissionsAction() {
-  await getSession(); // Ensure user is authenticated
-  // Since we don't have a submittedByUserId field in materials table,
-  // we'll return all materials for now (submitted materials will have approved: false)
-  return await db.select().from(materials).where(eq(materials.approved, false));
+  const session = await getSession();
+  const email = session.user.email;
+  const res = await db
+    .select()
+    .from(materials)
+    .where(eq(materials.supplierEmail, email));
+
+  return res.map((m) => {
+    const [min, max] = m.unitPriceRange.split("-").map(parseFloat);
+    return {
+      ...m,
+      countryOfOrigin: m.origin,
+      unitPriceMin: min || 0,
+      unitPriceMax: max || 0,
+      embodiedCarbonFactorPerUnit: parseFloat(m.embodiedCarbonFactor) || 0,
+      unit: m.unit || "Unit",
+    };
+  });
 }
