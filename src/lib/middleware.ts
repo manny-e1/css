@@ -24,10 +24,12 @@ export function createRoleMiddleware(config: ProtectedRouteConfig = {}) {
 
       // Check role requirements
       if (config.roles && !config.roles.includes(userRole)) {
+        console.log("Role not allowed:", userRole, "professional");
         return NextResponse.redirect(
           new URL(config.redirectTo || "/unauthorized", request.url),
         );
       }
+      console.log("Role not allowed:", userRole, "professional");
 
       // Check permission requirements
       if (config.permissions) {

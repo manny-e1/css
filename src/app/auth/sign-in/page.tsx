@@ -34,7 +34,7 @@ export default async function SignInPage() {
         redirect("/supplier/dashboard");
         break;
       default:
-        redirect("/projects");
+        redirect("/materials");
     }
   }
 

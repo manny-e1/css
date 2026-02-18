@@ -24,9 +24,9 @@ export default async function OrdersPage() {
   if (!session) {
     redirect("/auth/sign-in");
   }
-
+  console.log(session.user.role);
   // Check if user has professional or admin role
-  if (session.user.role !== "professional" && session.user.role !== "admin") {
+  if (session.user.role !== "professional") {
     redirect("/unauthorized");
   }
 

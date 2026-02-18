@@ -57,6 +57,7 @@ export async function roleMiddleware(
         hasPermission(userRole, permission),
       );
 
+      console.log("config roles", config.roles, "config permissions", config.permissions);
       if (!hasRequiredPermission) {
         return NextResponse.redirect(
           new URL(config.redirectTo || "/unauthorized", request.url),
