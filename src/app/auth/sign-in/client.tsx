@@ -19,7 +19,6 @@ export default function SignInClient() {
         email,
         password,
       });
-
       if (error) {
         if (error.message?.includes("banned")) {
           alert(
@@ -30,8 +29,9 @@ export default function SignInClient() {
         }
         return;
       }
+      type User = typeof data.user & { role: string };
 
-      if (data.user?.role === "supplier") {
+      if ((data.user as User).role === "supplier") {
         router.push("/supplier/dashboard");
       } else {
         router.push("/materials");
