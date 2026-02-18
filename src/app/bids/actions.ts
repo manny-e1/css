@@ -64,7 +64,7 @@ export async function createSourcingRequestAction(input: {
     })
     .returning();
 
-  revalidatePath("/sourcing");
+  revalidatePath("/bids");
   if (input.projectId) {
     revalidatePath(`/projects/${input.projectId}`);
   }
@@ -126,6 +126,14 @@ export async function submitBidAction(input: {
 
   if (!supplierProfile) throw new Error("Only suppliers can submit bids");
 
+  // Get the sourcing request to notify the creator
+  const [request] = await db
+    .select()
+    .from(sourcingRequests)
+    .where(eq(sourcingRequests.id, input.requestId));
+
+  if (!request) throw new Error("Sourcing request not found");
+
   const [bid] = await db
     .insert(bids)
     .values({
@@ -141,8 +149,20 @@ export async function submitBidAction(input: {
     })
     .returning();
 
-  revalidatePath("/sourcing");
-  revalidatePath(`/sourcing/request/${input.requestId}`);
+  // Create notification for the professional who created the request
+  if (request.userId) {
+    await db.insert(notifications).values({
+      userId: request.userId,
+      title: "New Bid Received!",
+      message: `You received a new bid of $${input.bidUnitPrice}/unit for your ${request.category} request.`,
+      type: "info",
+      link: `/bids/${input.requestId}`,
+      read: false,
+    });
+  }
+
+  revalidatePath("/bids");
+  revalidatePath(`/bids/request/${input.requestId}`);
   return bid;
 }
 
@@ -166,8 +186,8 @@ export async function deleteSourcingRequestAction(requestId: string) {
   // Let's assume we can delete.
 
   await db.delete(sourcingRequests).where(eq(sourcingRequests.id, requestId));
-  revalidatePath("/sourcing");
-  redirect("/sourcing");
+  revalidatePath("/bids");
+  redirect("/bids");
 }
 
 // List sourcing requests created by the current user (for buyers)
@@ -247,17 +267,21 @@ export async function listAllSourcingRequestsWithBidsAction() {
     .select({
       id: sourcingRequests.id,
       userId: sourcingRequests.userId,
+      userName: users.name,
       category: sourcingRequests.category,
       subCategory: sourcingRequests.subCategory,
       quantity: sourcingRequests.quantity,
       unit: sourcingRequests.unit,
+      requestType: sourcingRequests.requestType,
       status: sourcingRequests.status,
       createdAt: sourcingRequests.createdAt,
       location: sourcingRequests.location,
       deadline: sourcingRequests.deadline,
       description: sourcingRequests.description,
+      notes: sourcingRequests.notes,
     })
     .from(sourcingRequests)
+    .leftJoin(users, eq(sourcingRequests.userId, users.id))
     .orderBy(desc(sourcingRequests.createdAt));
 
   const bidsWithSuppliers = await db
@@ -411,6 +435,6 @@ export async function acceptBidAction(bidId: string) {
   if (request.projectId) {
     revalidatePath(`/projects/${request.projectId}`);
   }
-  revalidatePath("/sourcing");
+  revalidatePath("/bids");
   return { success: true };
 }

@@ -155,7 +155,7 @@ export default function MaterialsPage({
           {!isSupplier &&
             (isPro ? (
               <Link
-                href={`/sourcing/create${projectId ? `?projectId=${projectId}` : ""}`}
+                href={`/bids/create${projectId ? `?projectId=${projectId}` : ""}`}
               >
                 <Button className="h-12 px-6 rounded-xl font-bold bg-primary text-white shadow-sm transition-all">
                   <Plus className="h-4 w-4 mr-2" />

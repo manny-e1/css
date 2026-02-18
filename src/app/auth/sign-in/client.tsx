@@ -31,7 +31,11 @@ export default function SignInClient() {
         return;
       }
 
-      router.push("/projects");
+      if (data.user?.role === "supplier") {
+        router.push("/supplier/dashboard");
+      } else {
+        router.push("/materials");
+      }
     } catch (e) {
       console.error(e);
       alert("Sign-in failed");

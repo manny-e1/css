@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 interface Notification {
   id: string;
@@ -33,15 +34,18 @@ export function NotificationBell() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const data = await listMyNotificationsAction();
-      // Ensure data is typed correctly
-      const typedData = data.map((n) => ({
-        ...n,
-        createdAt: new Date(n.createdAt),
-      })) as Notification[];
+      const session = await authClient.getSession();
+      if (session.data?.session) {
+        const data = await listMyNotificationsAction();
+        // Ensure data is typed correctly
+        const typedData = data.map((n) => ({
+          ...n,
+          createdAt: new Date(n.createdAt),
+        })) as Notification[];
 
-      setNotifications(typedData);
-      setUnreadCount(typedData.filter((n) => !n.read).length);
+        setNotifications(typedData);
+        setUnreadCount(typedData.filter((n) => !n.read).length);
+      }
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     }

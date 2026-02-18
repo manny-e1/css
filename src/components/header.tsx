@@ -36,7 +36,7 @@ export default function Header() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [path]);
 
   useEffect(() => {
     checkSession();
@@ -44,9 +44,10 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
+      router.push("/");
       await authClient.signOut();
       setUser(null);
-      router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
     }

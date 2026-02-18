@@ -28,7 +28,7 @@ export default async function SignInPage() {
         redirect("/admin/users");
         break;
       case "professional":
-        redirect("/projects");
+        redirect("/materials");
         break;
       case "supplier":
         redirect("/supplier/dashboard");

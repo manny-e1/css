@@ -54,7 +54,7 @@ export default async function SupplierBidsPage() {
             Track and manage your responses to sourcing requests.
           </p>
         </div>
-        <Link href="/sourcing">
+        <Link href="/bids">
           <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs gap-3 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
             <Search className="h-4 w-4" />
             Find More Requests
@@ -75,7 +75,7 @@ export default async function SupplierBidsPage() {
               You haven't submitted any bids yet. Explore the sourcing board to
               find opportunities.
             </p>
-            <Link href="/sourcing" className="mt-8">
+            <Link href="/bids" className="mt-8">
               <Button
                 variant="outline"
                 className="rounded-xl font-bold text-xs uppercase tracking-wider px-8 border-border"
@@ -214,7 +214,7 @@ export default async function SupplierBidsPage() {
                           </a>
                         )}
                         <Link
-                          href={`/sourcing/${bid.requestId}`}
+                          href={`/bids/${bid.requestId}`}
                           className="flex-1 md:flex-none"
                         >
                           <Button className="w-full h-12 px-8 rounded-xl bg-primary text-white font-black uppercase tracking-widest text-[10px] gap-2.5 shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all active:scale-[0.98]">

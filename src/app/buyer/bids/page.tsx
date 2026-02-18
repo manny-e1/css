@@ -43,7 +43,7 @@ export default async function BuyerSourcingPage() {
             Track your open market requests and review supplier bids.
           </p>
         </div>
-        <Link href="/sourcing/create">
+        <Link href="/bids/create">
           <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs gap-3 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
             <Plus className="h-4 w-4" />
             New Sourcing Request
@@ -63,7 +63,7 @@ export default async function BuyerSourcingPage() {
                 You haven&apos;t created any open sourcing requests yet. Start
                 by creating one to receive bids from suppliers.
               </p>
-              <Link href="/sourcing/create">
+              <Link href="/bids/create">
                 <Button
                   variant="outline"
                   className="h-12 px-8 rounded-xl font-bold uppercase tracking-wider text-[10px] gap-2"

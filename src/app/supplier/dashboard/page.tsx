@@ -251,7 +251,7 @@ export default async function SupplierDashboard() {
                 Market Opportunities
               </h2>
               <Link
-                href="/sourcing"
+                href="/bids"
                 className="text-[10px] font-bold text-primary uppercase tracking-wider hover:opacity-70 transition-opacity flex items-center gap-2 group/link"
               >
                 Browse All{" "}
@@ -298,7 +298,7 @@ export default async function SupplierDashboard() {
                       <p className="text-base text-muted-foreground line-clamp-2 mb-8 leading-relaxed">
                         {req.description}
                       </p>
-                      <Link href={`/sourcing/${req.id}`} className="w-full">
+                      <Link href={`/bids/${req.id}`} className="w-full">
                         <Button className="w-full h-12 rounded-xl font-bold text-xs uppercase tracking-wider bg-primary text-white transition-all">
                           View & Bid
                         </Button>

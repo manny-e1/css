@@ -6,6 +6,7 @@ import {
   Layers,
   Plus,
   Search,
+  Send,
   Target,
   Trophy,
   Users,
@@ -133,8 +134,8 @@ export default async function SourcingPage({
               <Link
                 href={
                   session
-                    ? "/sourcing/create"
-                    : "/auth/sign-in?callbackUrl=/sourcing/create"
+                    ? "/bids/create"
+                    : "/auth/sign-in?callbackUrl=/bids/create"
                 }
               >
                 <Button className="gap-2 h-12 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
@@ -217,188 +218,109 @@ export default async function SourcingPage({
               </Card>
             ) : (
               filteredRequests.map((req) => (
-                <div key={req.id} className="space-y-6">
-                  <div className="flex items-center gap-4 px-2">
-                    <Badge
-                      variant="outline"
-                      className="rounded-full px-4 py-1 border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-wider"
-                    >
-                      {req.category}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-wider",
-                        req.status === "open"
-                          ? "border-green-500/20 bg-green-500/5 text-green-600"
-                          : "border-amber-500/20 bg-amber-500/5 text-amber-600",
-                      )}
-                    >
-                      {req.status}
-                    </Badge>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 ml-auto">
-                      <Clock className="h-3 w-3" />
-                      Posted {req.createdAt?.toLocaleDateString()}
-                      {user && user.id === req.userId && (
-                        <DeleteSourcingRequestButton
-                          requestId={req.id}
-                          category={req.category}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <Card className="rounded-[2.5rem] border-border/50 overflow-hidden bg-background shadow-sm hover:shadow-xl transition-all duration-500">
-                    <div className="grid grid-cols-1 lg:grid-cols-12">
-                      {/* Left Side: Request Info */}
-                      <div className="lg:col-span-4 p-10 bg-muted/30 border-r border-border/50">
-                        <h3 className="text-2xl font-black tracking-tight mb-8">
-                          {req.quantity} {req.unit || "Units"}
+                <Card
+                  key={req.id}
+                  className="rounded-[2rem] border-border/50 overflow-hidden bg-gradient-to-br from-background to-muted/20 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-500"
+                >
+                  <CardContent className="p-8">
+                    {/* Header Section */}
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
+                      <div className="flex-1">
+                        {/* Request Title */}
+                        <h3 className="text-2xl font-black tracking-tight text-foreground mb-4">
+                          {req.requestType === "service"
+                            ? `${req.category} Service`
+                            : `Supply of ${req.category}`}{" "}
+                          – {req.quantity} {req.unit || "Units"}
                         </h3>
 
-                        <div className="space-y-6">
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-background flex items-center justify-center border border-border/50 shadow-sm">
-                              <Target className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">
-                                Location
-                              </p>
-                              <p className="text-sm font-bold">
-                                {req.location || "N/A"}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-background flex items-center justify-center border border-border/50 shadow-sm">
-                              <Calendar className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">
-                                Deadline
-                              </p>
-                              <p className="text-sm font-bold">
-                                {req.deadline?.toLocaleDateString() || "Open"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-10 pt-10 border-t border-border/50">
-                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-4">
-                            Description
-                          </p>
-                          <p className="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-4">
-                            {req.description ||
-                              "No detailed specifications provided."}
-                          </p>
-                        </div>
-
-                        <Link
-                          href={`/sourcing/${req.id}`}
-                          className="block mt-10"
-                        >
-                          <Button
+                        {/* Tag Badges */}
+                        <div className="flex flex-wrap items-center gap-2 mb-4">
+                          <Badge
                             variant="outline"
-                            className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 border-border/50"
+                            className="rounded-full px-3 py-1 border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-wider"
                           >
-                            View Full Details
-                            <ArrowRight className="h-3 w-3" />
-                          </Button>
-                        </Link>
+                            {req.category}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="rounded-full px-3 py-1 border-blue-500/20 bg-blue-500/5 text-blue-600 text-[10px] font-black uppercase tracking-wider"
+                          >
+                            {req.requestType || "Material"}
+                          </Badge>
+                          {req.deadline && (
+                            <Badge
+                              variant="outline"
+                              className="rounded-full px-3 py-1 border-orange-500/20 bg-orange-500/5 text-orange-600 text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
+                            >
+                              <Calendar className="h-3 w-3" />
+                              {req.deadline.toLocaleDateString()}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Posted By */}
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Posted by{" "}
+                          <span className="font-bold text-foreground">
+                            {req.userName || "Professional"}
+                          </span>{" "}
+                          • {req.createdAt?.toLocaleDateString()}
+                        </p>
                       </div>
 
-                      {/* Right Side: Bids Info */}
-                      <div className="lg:col-span-8 p-10">
-                        <div className="flex items-center justify-between mb-8">
-                          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                            Bidding Activity ({req.bids.length})
-                          </h4>
+                      {/* Bid Count Badge */}
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="px-4 py-2 rounded-xl bg-primary/10 border border-primary/20">
+                          <p className="text-xs font-black text-primary uppercase tracking-wider">
+                            {req.bids.length} Bid
+                            {req.bids.length !== 1 ? "s" : ""}
+                          </p>
                         </div>
-
-                        {req.bids.length === 0 ? (
-                          <div className="h-full flex flex-col items-center justify-center py-12 text-center bg-muted/10 rounded-[2rem] border border-dashed border-border/50">
-                            <p className="text-sm font-medium text-muted-foreground">
-                              No bids submitted yet.
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            {req.bids.map((bid) => (
-                              <div
-                                key={bid.id}
-                                className={cn(
-                                  "p-6 rounded-2xl border transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6",
-                                  bid.status === "accepted"
-                                    ? "border-emerald-500/30 bg-emerald-500/5 shadow-sm"
-                                    : "border-border/50 bg-background hover:border-primary/20",
-                                )}
-                              >
-                                <div className="flex items-center gap-4">
-                                  <div
-                                    className={cn(
-                                      "h-12 w-12 rounded-xl flex items-center justify-center border",
-                                      bid.status === "accepted"
-                                        ? "bg-emerald-500/10 border-emerald-500/20"
-                                        : "bg-muted border-border/50",
-                                    )}
-                                  >
-                                    {bid.status === "accepted" ? (
-                                      <Trophy className="h-6 w-6 text-emerald-600" />
-                                    ) : (
-                                      <Building2 className="h-6 w-6 text-muted-foreground/60" />
-                                    )}
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-3">
-                                      <p className="text-sm font-black text-foreground">
-                                        {bid.supplierName ||
-                                          "Anonymous Supplier"}
-                                      </p>
-                                      {bid.status === "accepted" && (
-                                        <Badge className="bg-emerald-500 hover:bg-emerald-600 text-[8px] font-black uppercase tracking-wider px-2 py-0">
-                                          Awarded
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mt-1">
-                                      Bid on{" "}
-                                      {bid.createdAt?.toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-12">
-                                  <div className="text-right">
-                                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-1">
-                                      Price Offer
-                                    </p>
-                                    <p className="text-lg font-black text-primary">
-                                      ${bid.bidUnitPrice}
-                                      <span className="text-[10px] text-muted-foreground ml-1">
-                                        /unit
-                                      </span>
-                                    </p>
-                                  </div>
-                                  <div className="text-right min-w-[100px]">
-                                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-1">
-                                      Lead Time
-                                    </p>
-                                    <p className="text-sm font-black text-foreground">
-                                      {bid.leadTimeEstimate || "N/A"}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                        {user && user.id === req.userId && (
+                          <DeleteSourcingRequestButton
+                            requestId={req.id}
+                            category={req.category}
+                          />
                         )}
                       </div>
                     </div>
-                  </Card>
-                </div>
+
+                    {/* Description */}
+                    <div className="mb-6">
+                      <p className="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-2">
+                        {req.description ||
+                          "Looking for quality materials/services for construction project."}
+                      </p>
+                      {req.notes && (
+                        <p className="text-xs text-muted-foreground/70 mt-2 italic line-clamp-1">
+                          Note: {req.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/50">
+                      <Link href={`/bids/${req.id}`} className="flex-1">
+                        <Button
+                          variant="outline"
+                          className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-[10px] gap-2 border-border hover:border-primary/50 hover:bg-primary/5"
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                          View Details
+                        </Button>
+                      </Link>
+                      {isSupplier && (
+                        <Link href={`/bids/${req.id}`} className="flex-1">
+                          <Button className="w-full h-11 rounded-xl font-black uppercase tracking-wider text-[10px] gap-2 shadow-lg shadow-primary/20 hover:shadow-xl">
+                            <Send className="h-4 w-4" />
+                            Submit Bid
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))
             )}
           </div>
@@ -417,7 +339,7 @@ export default async function SourcingPage({
                     <p className="text-muted-foreground mt-2 text-sm max-w-xs mx-auto">
                       You haven&apos;t created any sourcing requests yet.
                     </p>
-                    <Link href="/sourcing/create" className="mt-8">
+                    <Link href="/bids/create" className="mt-8">
                       <Button className="rounded-xl font-black uppercase tracking-widest text-[10px]">
                         Create Your First Request
                       </Button>
@@ -465,7 +387,7 @@ export default async function SourcingPage({
                           {req.location || "N/A"}
                         </span>
                       </div>
-                      <Link href={`/sourcing/${req.id}`}>
+                      <Link href={`/bids/${req.id}`}>
                         <Button
                           variant="ghost"
                           className="h-8 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-primary/5 text-primary"
@@ -495,7 +417,7 @@ export default async function SourcingPage({
                     You haven&apos;t submitted any bids for sourcing requests
                     yet.
                   </p>
-                  <Link href="/sourcing" className="mt-8">
+                  <Link href="/bids" className="mt-8">
                     <Button className="rounded-xl font-black uppercase tracking-widest text-[10px]">
                       Browse Requests
                     </Button>
@@ -560,7 +482,7 @@ export default async function SourcingPage({
                           </span>
                         </p>
                       </div>
-                      <Link href={`/sourcing/${bid.requestId}`}>
+                      <Link href={`/bids/${bid.requestId}`}>
                         <Button
                           variant="outline"
                           className="h-12 rounded-xl px-6 font-black uppercase tracking-widest text-[10px] gap-2"

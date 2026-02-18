@@ -396,7 +396,7 @@ export default async function ProjectPage({
                     <p className="text-sm text-muted-foreground mb-8">
                       No active sourcing requests.
                     </p>
-                    <Link href={`/sourcing/create?projectId=${projectId}`}>
+                    <Link href={`/bids/create?projectId=${projectId}`}>
                       <Button className="h-12 px-6 rounded-xl font-bold bg-primary text-white shadow-sm transition-all">
                         <Plus className="h-4 w-4 mr-2" />
                         New Request
@@ -435,7 +435,7 @@ export default async function ProjectPage({
                   ))
                 )}
                 <Link
-                  href={`/sourcing/create?projectId=${projectId}`}
+                  href={`/bids/create?projectId=${projectId}`}
                   className="block"
                 >
                   <Button
@@ -595,7 +595,7 @@ export default async function ProjectPage({
                                     </Button>
                                   </Link>
                                   <Link
-                                    href={`/sourcing/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
+                                    href={`/bids/create?category=${item.category}&quantity=${item.quantity}&projectId=${projectId}`}
                                   >
                                     <Button
                                       variant="outline"
@@ -849,7 +849,7 @@ export default async function ProjectPage({
                     <ClipboardList className="h-4 w-4" />
                     Active Sourcing Requests
                   </h3>
-                  <Link href={`/sourcing/create?projectId=${projectId}`}>
+                  <Link href={`/bids/create?projectId=${projectId}`}>
                     <Button
                       variant="outline"
                       className="h-10 px-4 rounded-xl text-[10px] font-bold uppercase tracking-wider text-primary border-border/50 hover:bg-primary/5 transition-all"
@@ -869,7 +869,7 @@ export default async function ProjectPage({
                       <p className="text-xs font-medium text-muted-foreground/60 mb-8">
                         No active sourcing requests for this project.
                       </p>
-                      <Link href={`/sourcing/create?projectId=${projectId}`}>
+                      <Link href={`/bids/create?projectId=${projectId}`}>
                         <Button className="h-12 px-8 rounded-xl font-bold bg-primary text-white shadow-sm transition-all uppercase tracking-wider text-xs">
                           <Plus className="h-4 w-4 mr-2" />
                           Start Sourcing
@@ -1146,7 +1146,7 @@ export default async function ProjectPage({
                       explorer?
                     </p>
                   </div>
-                  <Link href={`/sourcing/create?projectId=${projectId}`}>
+                  <Link href={`/bids/create?projectId=${projectId}`}>
                     <Button className="w-full h-12 bg-white text-primary rounded-xl font-bold uppercase tracking-wider text-[10px] hover:bg-white/90 transition-all">
                       Create Open Request
                     </Button>

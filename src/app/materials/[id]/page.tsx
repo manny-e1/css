@@ -344,7 +344,7 @@ export default async function MaterialDetailPage({
                 </p>
                 {isPro ? (
                   <Link
-                    href={`/sourcing/create${projectId ? `?projectId=${projectId}` : ""}`}
+                    href={`/bids/create${projectId ? `?projectId=${projectId}` : ""}`}
                     className="block"
                   >
                     <Button

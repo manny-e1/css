@@ -16,6 +16,8 @@ import {
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { BidActivitySidebar } from "@/components/bids/bid-activity-sidebar";
+import { BidCard } from "@/components/bids/bid-card";
 import { DeleteSourcingRequestButton } from "@/components/bids/delete-request-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,6 @@ import {
   users,
 } from "@/db/new-schema";
 import { auth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 import { submitBidAction } from "../actions";
 
 export default async function SourcingDetail({
@@ -115,14 +116,14 @@ export default async function SourcingDetail({
       quoteUrl,
       notes,
     });
-    redirect("/sourcing?success=true");
+    redirect("/bids?success=true");
   }
 
   return (
     <div className="container mx-auto py-12 px-6 lg:px-10">
       <div className="mb-12 space-y-6">
         <Link
-          href="/sourcing"
+          href="/bids"
           className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -184,215 +185,248 @@ export default async function SourcingDetail({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-8">
-          <Card className="border-border rounded-xl overflow-hidden bg-background">
-            <CardHeader className="border-b bg-muted/50 py-6 px-8">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-3">
-                <Info className="h-4 w-4 text-primary" />
-                Requirement Scope
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Full Description & Details */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Full Description */}
+          <Card className="border-border rounded-2xl overflow-hidden bg-background">
+            <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-primary/10 py-6 px-8">
+              <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                <Info className="h-5 w-5 text-primary" />
+                Full Description
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="p-6 rounded-xl bg-muted border border-border">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <Layers className="h-4 w-4" />
-                    Volume
-                  </div>
-                  <div className="text-2xl font-bold tracking-tight">
-                    {request.quantity}
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-2">
-                      {request.unit || "Units"}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6 rounded-xl bg-muted border border-border">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Target
-                  </div>
-                  <div className="text-2xl font-bold tracking-tight">
-                    {request.targetUnitPrice
-                      ? `$${request.targetUnitPrice}`
-                      : "Open"}
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-2">
-                      /unit
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="p-6 rounded-xl bg-muted border border-border">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Location
-                  </div>
-                  <div className="text-xl font-bold tracking-tight">
-                    {request.location || "N/A"}
-                  </div>
-                </div>
-                <div className="p-6 rounded-xl bg-muted border border-border">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Deadline
-                  </div>
-                  <div className="text-xl font-bold tracking-tight text-foreground">
-                    {request.deadline
-                      ? request.deadline.toLocaleDateString()
-                      : "Open"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                  Item or Scope Description
-                </Label>
-                <div className="p-8 rounded-xl bg-muted border border-border text-base leading-relaxed text-foreground font-medium relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+              <div className="prose prose-sm max-w-none">
+                <p className="text-base leading-relaxed text-foreground font-medium">
                   {request.description ||
-                    "No specific technical requirements provided."}
-                </div>
+                    "No detailed description provided for this sourcing request."}
+                </p>
               </div>
-
-              {request.notes && (
-                <div className="space-y-4 mt-8">
-                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                    Additional Notes
-                  </Label>
-                  <div className="p-6 rounded-xl bg-muted/50 border border-border border-dashed text-sm leading-relaxed text-muted-foreground font-medium">
-                    {request.notes}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          <Card className="border-border rounded-xl overflow-hidden bg-background">
-            <CardHeader className="border-b bg-muted/50 py-6 px-8">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-3">
-                <Package className="h-4 w-4 text-primary" />
-                Bids Received ({allBids.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              {allBids.length === 0 ? (
-                <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-                  <p className="text-sm text-muted-foreground">
-                    No bids received yet for this request.
+          {/* Buyer Notes / Specifications */}
+          {request.notes && (
+            <Card className="border-border rounded-2xl overflow-hidden bg-background">
+              <CardHeader className="border-b bg-muted/50 py-6 px-8">
+                <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                  Complete Buyer Notes / Specifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8">
+                <div className="p-6 rounded-xl bg-muted/30 border border-dashed border-border">
+                  <p className="text-sm leading-relaxed text-muted-foreground font-medium whitespace-pre-wrap">
+                    {request.notes}
                   </p>
                 </div>
-              ) : (
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Project Context */}
+          {project && (
+            <Card className="border-border rounded-2xl overflow-hidden bg-background">
+              <CardHeader className="border-b bg-muted/50 py-6 px-8">
+                <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Project Context
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8">
                 <div className="space-y-4">
-                  {allBids.map((bid) => (
-                    <div
-                      key={bid.id}
-                      className="p-6 rounded-xl border border-border bg-muted/30 flex flex-col md:flex-row md:items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1">
-                        <div className="text-sm font-bold text-foreground">
-                          {bid.supplierName || "Anonymous Supplier"}
-                        </div>
-                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                          <Clock className="h-3 w-3" />
-                          Bid on {bid.createdAt?.toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-8">
-                        <div className="text-right">
-                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                            Price
-                          </div>
-                          <div className="text-lg font-bold text-primary">
-                            ${bid.bidUnitPrice}
-                            <span className="text-[10px] text-muted-foreground ml-1">
-                              /unit
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                            Lead Time
-                          </div>
-                          <div className="text-sm font-bold text-foreground">
-                            {bid.leadTimeEstimate || "N/A"}
-                          </div>
-                        </div>
-                        <Badge
-                          variant={
-                            bid.status === "accepted" ? "default" : "secondary"
-                          }
-                          className={cn(
-                            "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg",
-                            bid.status === "accepted"
-                              ? "bg-emerald-500 hover:bg-emerald-600"
-                              : "",
-                          )}
-                        >
-                          {bid.status}
-                        </Badge>
-                      </div>
+                  <div>
+                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      Project Name
+                    </Label>
+                    <p className="text-lg font-bold text-foreground mt-1">
+                      {project.name}
+                    </p>
+                  </div>
+                  {project.location && (
+                    <div>
+                      <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        Project Location
+                      </Label>
+                      <p className="text-base font-medium text-foreground mt-1">
+                        {project.location}
+                      </p>
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Technical Details */}
+          <Card className="border-border rounded-2xl overflow-hidden bg-background">
+            <CardHeader className="border-b bg-muted/50 py-6 px-8">
+              <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                <Layers className="h-5 w-5 text-primary" />
+                Technical Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Quantity + Unit */}
+                <div className="p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+                  <Label className="text-xs font-black text-primary uppercase tracking-wider mb-2 block">
+                    Quantity + Unit
+                  </Label>
+                  <p className="text-3xl font-black text-foreground">
+                    {request.quantity}{" "}
+                    <span className="text-lg text-muted-foreground">
+                      {request.unit || "units"}
+                    </span>
+                  </p>
+                </div>
+
+                {/* Delivery Address */}
+                <div className="p-6 rounded-xl bg-muted border border-border">
+                  <Label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Delivery Address (Approximate)
+                  </Label>
+                  <p className="text-lg font-bold text-foreground">
+                    {request.location || "Not specified"}
+                  </p>
+                </div>
+
+                {/* Project Type */}
+                <div className="p-6 rounded-xl bg-muted border border-border">
+                  <Label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block">
+                    Project Type
+                  </Label>
+                  <p className="text-lg font-bold text-foreground">
+                    {request.requestType === "service"
+                      ? "Service Work"
+                      : "Material Supply"}
+                  </p>
+                </div>
+
+                {/* Target Price */}
+                {request.targetUnitPrice && (
+                  <div className="p-6 rounded-xl bg-muted border border-border">
+                    <Label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block flex items-center gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Preferred Brands (Optional)
+                    </Label>
+                    <p className="text-lg font-bold text-primary">
+                      ${request.targetUnitPrice}
+                      <span className="text-sm text-muted-foreground ml-1">
+                        /unit
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Quality Requirements */}
+              <div className="mt-6 p-6 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+                <Label className="text-xs font-black text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-2 block">
+                  Quality Requirements
+                </Label>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                  Standard construction grade or better. Must meet local
+                  building codes and regulations.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="border-border rounded-xl overflow-hidden bg-background">
+          {/* Delivery / Execution Window */}
+          <Card className="border-border rounded-2xl overflow-hidden bg-background">
             <CardHeader className="border-b bg-muted/50 py-6 px-8">
+              <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-primary" />
+                Delivery / Execution Window
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-                  <Send className="h-4 w-4" />
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Clock className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-bold tracking-tight">
-                    {existingBid ? "Update Response" : "Submit Response"}
-                  </CardTitle>
-                  <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {existingBid
-                      ? "Modify Your Existing Quotation"
-                      : "Official Quotation Portal"}
-                  </CardDescription>
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Deadline
+                  </Label>
+                  <p className="text-2xl font-black text-foreground mt-1">
+                    {request.deadline
+                      ? request.deadline.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "Open / Flexible"}
+                  </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Bid Activity & Actions */}
+        <div className="lg:col-span-1 space-y-6">
+          <BidActivitySidebar
+            requestId={requestId}
+            allBids={allBids}
+            session={session}
+            existingBid={existingBid}
+          />
+        </div>
+      </div>
+
+      {/* All Bids Section (Below the grid) */}
+      {allBids.length > 0 && (
+        <div id="all-bids" className="mt-12">
+          <Card className="border-border rounded-2xl overflow-hidden bg-background">
+            <CardHeader className="border-b bg-muted/50 py-6 px-8">
+              <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-3">
+                <Package className="h-5 w-5 text-primary" />
+                All Bids Received ({allBids.length})
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              {!session ? (
-                <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                    <Info className="h-6 w-6 text-muted-foreground" />
+              <div className="space-y-4">
+                {allBids.map((bid) => (
+                  <BidCard
+                    key={bid.id}
+                    bid={bid}
+                    isOwner={session?.user.id === request.userId}
+                    requestStatus={request.status}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Bid Submission Form (Below All Bids) */}
+      {session &&
+        (session.user.role === "supplier" || session.user.role === "admin") && (
+          <div id="bid-form" className="mt-12">
+            <Card className="border-border rounded-2xl overflow-hidden bg-background">
+              <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-primary/10 py-6 px-8">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
+                    <Send className="h-5 w-5" />
                   </div>
-                  <h3 className="text-lg font-bold tracking-tight mb-2">
-                    Sign in to Submit a Bid
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-                    You must be logged in as a registered supplier to submit a
-                    quotation for this request.
-                  </p>
-                  <Link href={`/sign-in?callbackUrl=/sourcing/${requestId}`}>
-                    <Button className="rounded-xl font-bold px-8">
-                      Sign In to Continue
-                    </Button>
-                  </Link>
-                </div>
-              ) : session.user.role !== "supplier" &&
-                session.user.role !== "admin" ? (
-                <div className="text-center py-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                    <Info className="h-6 w-6 text-muted-foreground" />
+                  <div>
+                    <CardTitle className="text-xl font-black tracking-tight">
+                      {existingBid ? "Update Your Bid" : "Submit Your Bid"}
+                    </CardTitle>
+                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-primary mt-1">
+                      {existingBid
+                        ? "Modify Your Existing Quotation"
+                        : "Official Quotation Portal"}
+                    </CardDescription>
                   </div>
-                  <h3 className="text-lg font-bold tracking-tight mb-2">
-                    Supplier Account Required
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-                    Only registered suppliers can submit bids for sourcing
-                    requests.
-                  </p>
                 </div>
-              ) : (
+              </CardHeader>
+              <CardContent className="p-8">
                 <form action={submitBid} className="space-y-8">
                   <div className="space-y-4">
                     <Label
@@ -534,7 +568,7 @@ export default async function SourcingDetail({
                       {existingBid ? "Update Response" : "Submit Response"}
                       <CheckCircle2 className="ml-2 h-4 w-4" />
                     </Button>
-                    <Link href="/sourcing" className="flex-1">
+                    <Link href="/bids" className="flex-1">
                       <Button
                         variant="outline"
                         type="button"
@@ -545,88 +579,10 @@ export default async function SourcingDetail({
                     </Link>
                   </div>
                 </form>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-4 space-y-8">
-          <Card className="p-8 rounded-xl border border-border bg-primary text-primary-foreground relative overflow-hidden">
-            <div className="relative z-10">
-              <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                <Info className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="text-xl font-bold tracking-tight mb-6">
-                Guidelines
-              </h3>
-              <div className="space-y-6">
-                {[
-                  "Bids are binding for 30 days. Ensure pricing accounts for market volatility.",
-                  "Include all logistics costs or clearly specify terms in notes.",
-                  "Selection is based on price, lead time, and carbon profile.",
-                ].map((tip, i) => (
-                  <div key={tip} className="flex gap-4">
-                    <div className="h-6 w-6 rounded-lg bg-white/20 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
-                      {i + 1}
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed opacity-90">
-                      {tip}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-8 rounded-xl border border-border bg-background">
-            <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mb-6 border border-border">
-              <MessageSquare className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-bold tracking-tight mb-3">
-              Direct Inquiry
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed font-medium mb-8">
-              Need to clarify technical specifications or volume requirements
-              before submitting your final bid?
-            </p>
-            <Link
-              href={`/inquiries/create?materialId=${request.id}${project ? `&projectId=${project.id}` : ""}`}
-              className="block"
-            >
-              <Button
-                variant="outline"
-                className="w-full h-11 rounded-xl font-bold text-[10px] uppercase tracking-wider border-border gap-3"
-              >
-                Message Project Lead
-                <ArrowLeft className="h-4 w-4 rotate-180" />
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="p-8 rounded-xl bg-muted border border-border">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-6">
-              Procurement Health
-            </h3>
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
-                  <span className="text-muted-foreground">Competition</span>
-                  <span className="text-primary">Medium</span>
-                </div>
-                <div className="h-2 w-full bg-background rounded-full overflow-hidden border border-border">
-                  <div className="h-full bg-primary rounded-full w-[45%]" />
-                </div>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-border border-dashed">
-                <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Active for 4 more days
-                </span>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
     </div>
   );
 }
