@@ -184,10 +184,10 @@ export default function AdminUsersPage() {
                       <Badge
                         variant={
                           user.supplierProfile.approvalStatus === "approved"
-                            ? "success"
+                            ? "default"
                             : user.supplierProfile.approvalStatus === "rejected"
                               ? "destructive"
-                              : "warning"
+                              : "secondary"
                         }
                       >
                         {user.supplierProfile.approvalStatus}
