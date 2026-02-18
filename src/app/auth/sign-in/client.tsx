@@ -33,6 +33,8 @@ export default function SignInClient() {
 
       if ((data.user as User).role === "supplier") {
         router.push("/supplier/dashboard");
+      } else if ((data.user as User).role === "admin") {
+        router.push("/admin/dashboard");
       } else {
         router.push("/materials");
       }
