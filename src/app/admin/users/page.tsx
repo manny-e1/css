@@ -1,6 +1,14 @@
 "use client";
 
-import { Check, ExternalLink, FileText, Loader2, X } from "lucide-react";
+import {
+  Check,
+  ExternalLink,
+  FileText,
+  Loader2,
+  Ban,
+  Trash2,
+  UserCog,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -24,9 +32,28 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   approveSupplierAction,
   getUsersAction,
   rejectSupplierAction,
+  banUserAction,
+  unbanUserAction,
+  deleteUserAction,
+  changeUserRoleAction,
 } from "./actions";
 
 type UserWithProfile = {
@@ -126,6 +153,87 @@ export default function AdminUsersPage() {
     setIsRejectDialogOpen(true);
   }
 
+  async function handleBanUser(user: UserWithProfile) {
+    if (!confirm(`Are you sure you want to ban ${user.name || user.email}?`))
+      return;
+
+    setActionLoading(true);
+    try {
+      const result = await banUserAction(user.id);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("User banned successfully");
+        loadUsers();
+      }
+    } catch (error) {
+      toast.error("Failed to ban user");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleUnbanUser(user: UserWithProfile) {
+    if (!confirm(`Are you sure you want to unban ${user.name || user.email}?`))
+      return;
+
+    setActionLoading(true);
+    try {
+      const result = await unbanUserAction(user.id);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("User unbanned successfully");
+        loadUsers();
+      }
+    } catch (error) {
+      toast.error("Failed to unban user");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleDeleteUser(user: UserWithProfile) {
+    if (
+      !confirm(
+        `Are you sure you want to DELETE ${user.name || user.email}? This action cannot be undone!`,
+      )
+    )
+      return;
+
+    setActionLoading(true);
+    try {
+      const result = await deleteUserAction(user.id);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("User deleted successfully");
+        loadUsers();
+      }
+    } catch (error) {
+      toast.error("Failed to delete user");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleChangeRole(userId: string, newRole: string) {
+    setActionLoading(true);
+    try {
+      const result = await changeUserRoleAction(userId, newRole);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("User role changed successfully");
+        loadUsers();
+      }
+    } catch (error) {
+      toast.error("Failed to change user role");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -135,15 +243,15 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 mt-8">
+      <div className="flex items-center justify-between max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
         <Button onClick={loadUsers} variant="outline" size="sm">
           Refresh List
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div className="max-w-7xl mx-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -202,16 +310,80 @@ export default function AdminUsersPage() {
                     {new Date(user.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {user.role === "supplier" && user.supplierProfile && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openDetails(user)}
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Role Change Dropdown */}
+                      <Select
+                        value={user.role}
+                        onValueChange={(newRole) =>
+                          handleChangeRole(user.id, newRole)
+                        }
+                        disabled={actionLoading}
                       >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Details
-                      </Button>
-                    )}
+                        <SelectTrigger className="w-[130px] h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="buyer">Buyer</SelectItem>
+                          <SelectItem value="professional">
+                            Professional
+                          </SelectItem>
+                          <SelectItem value="supplier">Supplier</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Actions Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <UserCog className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+
+                          {user.role === "supplier" && user.supplierProfile && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => openDetails(user)}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+
+                          {user.banned ? (
+                            <DropdownMenuItem
+                              onClick={() => handleUnbanUser(user)}
+                              disabled={actionLoading}
+                            >
+                              <Check className="h-4 w-4 mr-2" />
+                              Unban User
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() => handleBanUser(user)}
+                              disabled={actionLoading}
+                            >
+                              <Ban className="h-4 w-4 mr-2" />
+                              Ban User
+                            </DropdownMenuItem>
+                          )}
+
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={actionLoading}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

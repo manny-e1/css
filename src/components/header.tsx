@@ -63,14 +63,9 @@ export default function Header() {
     switch (user.role) {
       case "admin":
         return [
-          { href: "/professional/dashboard", label: "Dashboard" },
-          { href: "/projects", label: "Projects" },
-          { href: "/materials", label: "Materials" },
-          { href: "/bids", label: "Bids" },
-          { href: "/inquiries", label: "Inquiries" },
-          { href: "/orders", label: "Orders" },
+          { href: "/admin/dashboard", label: "Dashboard" },
+          { href: "/admin/materials", label: "Materials" },
           { href: "/admin/users", label: "Users" },
-          { href: "/admin/range-adjustment", label: "Range Adjustment" },
         ];
       case "professional":
         return [
@@ -108,7 +103,7 @@ export default function Header() {
   if (loading) {
     return (
       <header className="border-b">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between p-4">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between py-4">
           <Link href="/" className="font-semibold">
             Carbon Smart Spaces
           </Link>
@@ -124,7 +119,7 @@ export default function Header() {
 
   return (
     <header className="border-b bg-white sticky top-0 z-40">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between py-4 px-4">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between py-4">
         {/* Logo */}
         <Link href="/" className="font-semibold text-base sm:text-lg shrink-0">
           Carbon Smart Spaces
@@ -161,23 +156,20 @@ export default function Header() {
               }
             />
           )}
-          {user &&
-            (user.role === "professional" ||
-              user.role === "admin" ||
-              user.role === "buyer") && (
-              <Link
-                href="/materials/shortlist"
-                className="relative p-2 text-gray-600 hover:text-black"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {shortlist.length > 0 && (
-                  <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    {shortlist.length}
-                  </span>
-                )}
-              </Link>
-            )}
-          {user && (
+          {user && (user.role === "professional" || user.role === "buyer") && (
+            <Link
+              href="/materials/shortlist"
+              className="relative p-2 text-gray-600 hover:text-black"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {shortlist.length > 0 && (
+                <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                  {shortlist.length}
+                </span>
+              )}
+            </Link>
+          )}
+          {user && user.role !== "admin" && (
             <div className="flex items-center gap-4 border-r pr-4">
               <NotificationBell />
               {/* <RoleSwitcher
@@ -186,7 +178,7 @@ export default function Header() {
               /> */}
             </div>
           )}
-          <div className="flex gap-4 text-sm">
+          <div className="flex gap-4 text-sm items-center">
             {user ? (
               <>
                 <span className="text-gray-600 hidden xl:inline">
@@ -222,25 +214,22 @@ export default function Header() {
         {/* Mobile Menu Button & Icons */}
         <div className="flex lg:hidden items-center gap-3">
           {/* Shortlist Icon (Mobile) */}
-          {user &&
-            (user.role === "professional" ||
-              user.role === "admin" ||
-              user.role === "buyer") && (
-              <Link
-                href="/materials/shortlist"
-                className="relative p-2 text-gray-600 hover:text-black"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {shortlist.length > 0 && (
-                  <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    {shortlist.length}
-                  </span>
-                )}
-              </Link>
-            )}
+          {user && (user.role === "professional" || user.role === "buyer") && (
+            <Link
+              href="/materials/shortlist"
+              className="relative p-2 text-gray-600 hover:text-black"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {shortlist.length > 0 && (
+                <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                  {shortlist.length}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* Notification Bell (Mobile) */}
-          {user && <NotificationBell />}
+          {user && user.role !== "admin" && <NotificationBell />}
 
           {/* Hamburger Menu Button */}
           <button
@@ -296,7 +285,7 @@ export default function Header() {
 
               {/* Auth Section */}
               {user ? (
-                <div className="space-y-2">
+                <div className="space-y-2 flex items-center">
                   <div className="text-sm text-gray-600 py-2">{user.email}</div>
                   <button
                     type="button"

@@ -47,7 +47,7 @@ export function MinimalHeader() {
     if (!user) return "/";
     switch (user.role) {
       case "admin":
-        return "/admin/users";
+        return "/admin/dashboard";
       case "professional":
         return "/professional/dashboard";
       case "supplier":

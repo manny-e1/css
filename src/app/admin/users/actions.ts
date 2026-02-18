@@ -101,3 +101,94 @@ export async function rejectSupplierAction(userId: string, reason: string) {
     return { error: "Failed to reject supplier" };
   }
 }
+
+export async function banUserAction(userId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    await db
+      .update(authUser)
+      .set({ banned: true })
+      .where(eq(authUser.id, userId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error banning user:", error);
+    return { error: "Failed to ban user" };
+  }
+}
+
+export async function unbanUserAction(userId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    await db
+      .update(authUser)
+      .set({ banned: false })
+      .where(eq(authUser.id, userId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error unbanning user:", error);
+    return { error: "Failed to unban user" };
+  }
+}
+
+export async function deleteUserAction(userId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    // Delete user (cascade will handle related records)
+    await db.delete(authUser).where(eq(authUser.id, userId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { error: "Failed to delete user" };
+  }
+}
+
+export async function changeUserRoleAction(userId: string, newRole: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const validRoles = ["buyer", "professional", "supplier", "admin"];
+  if (!validRoles.includes(newRole)) {
+    return { error: "Invalid role" };
+  }
+
+  try {
+    await db
+      .update(authUser)
+      .set({ role: newRole as any })
+      .where(eq(authUser.id, userId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error changing user role:", error);
+    return { error: "Failed to change user role" };
+  }
+}
