@@ -3,7 +3,7 @@
 import type { User } from "better-auth";
 import { ShoppingCart, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { RoleSwitcher } from "@/components/role-switcher";
 import { NotificationBell } from "@/components/notification-bell";
@@ -19,6 +19,7 @@ interface SessionUser extends User {
 }
 
 export default function Header() {
+  const path = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -99,6 +100,9 @@ export default function Header() {
         ];
     }
   };
+  if (path === "/") {
+    return null;
+  }
 
   if (loading) {
     return (
